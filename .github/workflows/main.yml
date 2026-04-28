@@ -1,0 +1,27 @@
+name: Docker Build Check
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Test du Build Backend
+      - name: Build Backend Image
+        run: docker build ./backend -t job-aggregator-back:latest
+
+      # Test du Build Frontend
+      - name: Build Frontend Image
+        run: docker build ./frontend -t job-aggregator-front:latest
+
+      # Vérification Docker Compose
+      - name: Check Docker Compose Configuration
+        run: docker compose config

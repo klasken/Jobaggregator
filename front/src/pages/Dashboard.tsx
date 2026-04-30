@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // Import important pour la navigation
-import '../index.css';
+import './Dashboard.css';
 
 interface StatItem {
   id: number;

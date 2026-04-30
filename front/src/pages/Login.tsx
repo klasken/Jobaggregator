@@ -8,7 +8,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      // Remplace l'URL par celle du back marius ou lois 
+      // Remplace l'URL par celle du back marius ou lois
       const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -19,7 +19,7 @@ const Login = () => {
 
       if (response.ok) {
         alert("Connexion réussie !");
-        //stock le token 
+        //stock le token
       } else {
         alert("Identifiants incorrects");
       }
@@ -32,19 +32,19 @@ const Login = () => {
     <div className="auth-container">
       <h1>Connexion</h1>
       <form onSubmit={handleLogin}>
-        <input 
-          type="email" 
-          placeholder="Email" 
+        <input
+          type="email"
+          placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
+          onChange={(e) => setEmail(e.target.value)}
+          required
         />
-        <input 
-          type="password" 
-          placeholder="Mot de passe" 
+        <input
+          type="password"
+          placeholder="Mot de passe"
           value={password}
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
+          onChange={(e) => setPassword(e.target.value)}
+          required
         />
         <button type="submit">Se connecter</button>
       </form>

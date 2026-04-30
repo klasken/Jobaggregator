@@ -46,10 +46,14 @@ body {
   font-size: 2.25rem;
   font-weight: 800;
   letter-spacing: -0.025em;
+  line-height: 1.2; 
   margin-bottom: 8px;
   background: linear-gradient(90deg, var(--text-main), var(--primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent; 
+
 }
 
 .page-header p {

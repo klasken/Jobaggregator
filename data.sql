@@ -1,18 +1,18 @@
 CREATE TABLE roles (
-    id SERIAL PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL
 );
 
 CREATE TABLE utilisateurs (
-    id SERIAL PRIMARY KEY,
-    email TEXT UNIQUE NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     role_id INT NOT NULL,
     CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
 CREATE TABLE offres (
-    id SERIAL PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     titre TEXT NOT NULL,
     entreprise_id TEXT NOT NULL,
     description TEXT NOT NULL,

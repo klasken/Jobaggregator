@@ -1,24 +1,25 @@
-CREATE TABLE offres (
-    id INT PRIMARY KEY NOT NULL,
-    title TEXT,
-    description TEXT,
-    company TEXT,
-    location TEXT,
-    contract_type TEXT,
-    date DATE,
-    salary TEXT,
-    duration int,
-    poster TEXT
-)
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
 
 CREATE TABLE utilisateurs (
-    id INT PRIMARY KEY,
-    email TEXT UNIQUE,
-    password TEXT,
-    role_id INT
-)
+    id SERIAL PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role_id INT NOT NULL,
+    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(id)
+);
 
-CREATE TABLE roles (
-    id INT PRIMARY KEY,
-    name TEXT
-)
+CREATE TABLE offres (
+    id SERIAL PRIMARY KEY,
+    titre TEXT NOT NULL,
+    entreprise_id TEXT NOT NULL,
+    description TEXT NOT NULL,
+    salaire_min INT,
+    salaire_max INT,
+    location TEXT,
+    date DATE NOT NULL,
+    contract_type TEXT,
+    source TEXT NOT NULL
+);

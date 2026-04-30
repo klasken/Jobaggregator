@@ -1,0 +1,43 @@
+import mysql.connector
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def inserer_database(offres_clean):
+    try:
+        conection = mysql.connector.connect(
+            host = os.getenv("DB_HOST", "db"),
+            user = os.getenv("MYSQL_USER"),
+            password = os.getenv("MYSQL_PASSWORD"),
+            database = os.getenv("MYSQL_DATABASE")
+        )
+        cursor = conection.cursor()
+
+        insert_query = """
+            INSERT INTO offres (titre, entreprise_id, description, salaire_min, salaire_max, location, date, contract_type, source)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        for offre in offres_clean:
+            params = []
+            cles_a_inserer = ["titre", "entreprise_id", "description", "salaire_min", "salaire_max", "location", "date", "contract_type", "source"]
+
+            for cle in cles_a_inserer:
+                valeur = offre.get(cle)
+                if isinstance(valeur, list):
+                    params.append(", ".join(map(str, valeur)))
+                else:
+                    params.append(valeur)
+
+            cursor.execute(insert_query, tuple(params))
+
+        conection.commit()
+        cursor.close()
+        conection.close()
+        print("Insertion réussie dans le SQL !")
+
+    except mysql.connector.Error as eer:
+        print(f"Erreur MYSQL : {eer}")
+    except Exception as e:
+        print(f"Erreur inattendue : {e}")

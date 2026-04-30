@@ -1,28 +1,32 @@
-service : 
-  frontend:
-    build: ./frontend
-    ports: 
-      - "8080:80"
-    networks: 
-      - frontend_network
+services:
+#  frontend:
+#    build: ./frontend
+#    ports:
+#      - "8080:80"
+#    networks:
+#      - frontend_network
 
   backend:
-    build: ./backend 
+    build: ./backend
     depends_on:
-      - db 
+      - db
+    env_file:
+      - .env
     environment:
       DB_HOST: db
       WELOVEDEVS_API_KEY: ${WELOVEDEVS_API_KEY}
     networks:
       - frontend_network
       - backend_network
+    ports:
+      - "8000:8000"
 
-  phpmyadmin: 
+  phpmyadmin:
     image: phpmyadmin
     restart: always
-    depends_on: 
+    depends_on:
       - db
-    ports: 
+    ports:
       - "127.0.0.1:8081:80"
     networks:
       - backend_network
@@ -35,14 +39,14 @@ service :
         MYSQL_DATABASE: ${MYSQL_DATABASE}
         MYSQL_USER: ${MYSQL_USER}
         MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    volumes: 
+    volumes:
       - db_data:/var/lib/mysql
-    networks: 
+    networks:
       - backend_network
 
 networks:
   frontend_network:
-  backend_network: 
+  backend_network:
 
 volumes:
-  db_data: 
+  db_data:

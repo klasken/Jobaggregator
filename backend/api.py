@@ -1,13 +1,45 @@
-import requests, os, time
-from dotenv import load_dotenv
+import os
+import time
+import requests
 from datetime import datetime
-from database_api import inserer_database
+import asyncio
+from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 from fastapi import FastAPI
-import requests, os, time
+from database_api import inserer_database
 
 load_dotenv()
 
-app = FastAPI()
+async def fetch_en_arriere_plan(interval_minutes: int):
+    while True:
+        await asyncio.sleep(interval_minutes * 60)
+
+        print(f"Lancement de la collecte (toutes les {interval_minutes} min)...")
+
+        offres = await asyncio.to_thread(collect_everything)
+
+        if offres:
+            await asyncio.to_thread(inserer_database, offres)
+            print(f"{len(offres)} nouvelles offres ont été ajoutées.")
+        else:
+            print("Aucune nouvelle donnée trouvée.")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Démarrage du serveur : Lancement de la collecte automatique...")
+    offres = await asyncio.to_thread(collect_everything)
+    if offres:
+        await asyncio.to_thread(inserer_database, offres)
+        print(f"{len(offres)} offres ont été collectées et insérées.")
+    else:
+        print("Aucune donnée récupérée au démarrage.")
+
+    tache_fond = asyncio.create_task(fetch_en_arriere_plan(30))
+    yield
+    print("Arrêt du serveur.")
+    tache_fond.cancel()
+
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 def read_root():
@@ -33,7 +65,7 @@ def fetch_offers(page=2, limit=50):
         r.raise_for_status()
         return r.json()
     except Exception as e:
-        print(f"Erreur : {e}")
+        print(f"Erreur HTTP : {e}")
         return None
     finally:
         time.sleep(1)
@@ -46,6 +78,7 @@ def normalize(raw):
         date_finale = date_objet.strftime("%Y-%m-%d")
     else:
         date_finale = None
+
     salary_dossier = raw.get("Salary") or raw.get("salary") or {}
     salary_min = salary_dossier.get("min")
     salary_max = salary_dossier.get("max")
@@ -54,6 +87,7 @@ def normalize(raw):
     titre = raw.get("title")
     entreprise_id = raw.get("companyId")
     description = raw.get("descriptionPreview")
+
     if titre == None or date_finale == None or entreprise_id == None or description == None:
         return None
 
@@ -62,6 +96,7 @@ def normalize(raw):
         contract_final = ", ".join(raw_contract)
     else:
         contract_final = raw_contract or "Non communiqué"
+
     raw_skills = raw.get("skillsList")
     if isinstance(raw_skills, list):
         skills_as_strings = [
@@ -88,13 +123,14 @@ def normalize(raw):
 
 def process_page(data_brute):
     liste_offres = data_brute.get("values", [])
-
     offres_nettoyees = []
+
     for offre in liste_offres:
         propre = normalize(offre)
         if propre == None:
             continue
         offres_nettoyees.append(propre)
+
     return offres_nettoyees
 
 def collect_everything(max_pages=5):
@@ -106,13 +142,5 @@ def collect_everything(max_pages=5):
             break
         nouveau_paquet = process_page(paquet_brut)
         toutes_les_offres.extend(nouveau_paquet)
+
     return toutes_les_offres
-
-
-if __name__ == "__main__":
-    offres = collect_everything()
-
-    if offres:
-        inserer_database(offres)
-    else:
-        print("Aucune donnée récupérées")

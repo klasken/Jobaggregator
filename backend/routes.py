@@ -1,9 +1,10 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from database_api import get_user_by_email, creer_utilisateur
 from auth import verify_mdp, obtenir_mdp_hasher, cree_acces_pour_token
 
-app = FastAPI()
+# On utilise APIRouter pour pouvoir l'inclure dans l'app principale
+router = APIRouter()
 
 class UserAuth(BaseModel):
     email: EmailStr
@@ -13,7 +14,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-@app.post("/api/register", status_code=status.HTTP_201_CREATED)
+@router.post("/api/register", status_code=status.HTTP_201_CREATED)
 async def register(user: UserAuth):
     """Route d'inscription pour le frontend."""
     if get_user_by_email(user.email):
@@ -33,7 +34,7 @@ async def register(user: UserAuth):
 
     return {"message": "Utilisateur créé avec succès"}
 
-@app.post("/api/login", response_model=Token)
+@router.post("/api/login", response_model=Token)
 async def login(user: UserAuth):
     """Route de connexion."""
     db_user = get_user_by_email(user.email)

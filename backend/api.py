@@ -8,16 +8,16 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from database_api import inserer_database
 
+# IMPORT des routes d'authentification[cite: 1]
+from routes import router as auth_router
+
 load_dotenv()
 
 async def fetch_en_arriere_plan(interval_minutes: int):
     while True:
         await asyncio.sleep(interval_minutes * 60)
-
         print(f"Lancement de la collecte (toutes les {interval_minutes} min)...")
-
         offres = await asyncio.to_thread(collect_everything)
-
         if offres:
             await asyncio.to_thread(inserer_database, offres)
             print(f"{len(offres)} nouvelles offres ont été ajoutées.")
@@ -39,7 +39,11 @@ async def lifespan(app: FastAPI):
     print("Arrêt du serveur.")
     tache_fond.cancel()
 
+# 1. Création de l'application principale
 app = FastAPI(lifespan=lifespan)
+
+# 2. Inclusion du router d'authentification (doit être fait ici)[cite: 1]
+app.include_router(auth_router)
 
 @app.get("/")
 def read_root():
@@ -53,11 +57,10 @@ def trigger_fetch():
         return {"message": f"{len(offres)} offres collectées"}
     return {"message": "Aucune nouvelle offre trouvée."}
 
-
+# --- Logique de collecte WeLoveDevs ---
 API_KEY  = os.getenv("WELOVEDEVS_API_KEY")
 BASE_URL = "https://epi-api.welovedevs.com/v1"
 HEADERS  = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
-
 
 def fetch_offers(page=2, limit=50):
     try:
@@ -69,7 +72,6 @@ def fetch_offers(page=2, limit=50):
         return None
     finally:
         time.sleep(1)
-
 
 def normalize(raw):
     timesamp = raw.get("publishDate")
@@ -88,21 +90,15 @@ def normalize(raw):
     entreprise_id = raw.get("companyId")
     description = raw.get("descriptionPreview")
 
-    if titre == None or date_finale == None or entreprise_id == None or description == None:
+    if titre is None or date_finale is None or entreprise_id is None or description is None:
         return None
 
     raw_contract = contract_type_var.get("contractTypes")
-    if isinstance(raw_contract, list):
-        contract_final = ", ".join(raw_contract)
-    else:
-        contract_final = raw_contract or "Non communiqué"
+    contract_final = ", ".join(raw_contract) if isinstance(raw_contract, list) else (raw_contract or "Non communiqué")
 
     raw_skills = raw.get("skillsList")
     if isinstance(raw_skills, list):
-        skills_as_strings = [
-            s.get("name") if isinstance(s, dict) else str(s)
-            for s in raw_skills
-        ]
+        skills_as_strings = [s.get("name") if isinstance(s, dict) else str(s) for s in raw_skills]
         skills_final = ", ".join(skills_as_strings)
     else:
         skills_final = str(raw_skills) if raw_skills else ""
@@ -124,23 +120,18 @@ def normalize(raw):
 def process_page(data_brute):
     liste_offres = data_brute.get("values", [])
     offres_nettoyees = []
-
     for offre in liste_offres:
         propre = normalize(offre)
-        if propre == None:
-            continue
-        offres_nettoyees.append(propre)
-
+        if propre:
+            offres_nettoyees.append(propre)
     return offres_nettoyees
 
 def collect_everything(max_pages=5):
     toutes_les_offres = []
-
     for num_page in range(1, max_pages + 1):
         paquet_brut = fetch_offers(page=num_page, limit=10)
         if not paquet_brut:
             break
         nouveau_paquet = process_page(paquet_brut)
         toutes_les_offres.extend(nouveau_paquet)
-
     return toutes_les_offres

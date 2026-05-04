@@ -3,7 +3,14 @@ CREATE TABLE roles (
     name VARCHAR(255) UNIQUE NOT NULL
 );
 
-CREATE TABLE utilisateurs (
+CREATE TABLE IF NOT EXISTS roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL
+);
+
+INSERT IGNORE INTO roles (id, name) VALUES (1, 'utilisateur'), (2, 'admin');
+
+CREATE TABLE IF NOT EXISTS utilisateurs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password TEXT NOT NULL,

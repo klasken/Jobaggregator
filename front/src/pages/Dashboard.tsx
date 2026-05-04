@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Import important pour la navigation
+import { Link } from 'react-router-dom'; 
 import './Dashboard.css';
 
 interface StatItem {
@@ -11,7 +11,7 @@ interface StatItem {
   color: 'blue' | 'green' | 'purple' | 'orange';
 }
 
-const Dashboard: React.FC = () => { // On l'appelle Dashboard maintenant
+const Dashboard: React.FC = () => { 
   const [activeTab, setActiveTab] = useState('Dashboard');
 
   const stats: StatItem[] = [

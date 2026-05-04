@@ -41,3 +41,63 @@ def inserer_database(offres_clean):
         print(f"Erreur MYSQL : {eer}")
     except Exception as e:
         print(f"Erreur inattendue : {e}")
+
+
+def creer_utilisateur(email, hashed_password, role_id=1):
+    """Insère un nouvel utilisateur dans la base de données"""
+    try:
+        conection = mysql.connector.connect(
+            host = os.getenv("DB_HOST", "db"),
+            user = os.getenv("MYSQL_USER"),
+            password = os.getenv("MYSQL_PASSWORD"),
+            database = os.getenv("MYSQL_DATABASE")
+        )
+        cursor = conection.cursor()
+
+        query = "INSERT INTO utilisateurs (email, password, role_id) VALUES (%s, %s, %s)"
+
+        cursor.execute(query, (email, hashed_password, role_id))
+
+        conection.commit()
+        cursor.close()
+        conection.close()
+
+        return True
+
+    except mysql.connector.Error as eer:
+        print(f"Erreur MYSQL : {eer}")
+        return False
+    except Exception as e:
+        print(f"Erreur inattendue : {e}")
+        return False
+
+
+def get_user_by_email(email):
+    try:
+        conection = mysql.connector.connect(
+            host = os.getenv("DB_HOST", "db"),
+            user = os.getenv("MYSQL_USER"),
+            password = os.getenv("MYSQL_PASSWORD"),
+            database = os.getenv("MYSQL_DATABASE")
+        )
+
+        cursor = conection.cursor(dictionary=True)
+
+        query = """
+            SELECT * FROM utilisateurs WHERE email = %s
+        """
+
+
+        cursor.execute(query, (email,))
+
+        user = cursor.fetchone()
+
+        cursor.close()
+        conection.close()
+
+        return user
+
+    except mysql.connector.Error as eer:
+        print(f"Erreur MYSQL : {eer}")
+    except Exception as e:
+        print(f"Erreur inattendue : {e}")

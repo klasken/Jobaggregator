@@ -14,6 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Test du Lint
+      - name: Run Linter (Python)
+        run: |
+          pip install flake8
+          flake8 ./backend --select=E9,F63,F7,F82
+          
       # Test du Build Backend
       - name: Build Backend Image
         run: docker build ./backend -t job-aggregator-back:latest

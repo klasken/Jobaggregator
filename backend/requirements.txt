@@ -8,3 +8,5 @@ bcrypt==4.0.1
 python-jose[cryptography]
 python-multipart
 email-validator
+sentence-transformers
+torch --index-url https://download.pytorch.org/whl/cpu

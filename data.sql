@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS utilisateurs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    competences TEXT,
     role_id INT NOT NULL,
     CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(id)
 );

@@ -43,7 +43,7 @@ def inserer_database(offres_clean):
         print(f"Erreur inattendue : {e}")
 
 
-def creer_utilisateur(email, hashed_password, role_id=1):
+def creer_utilisateur(email, hashed_password, competences, role_id=1):
     """Insère un nouvel utilisateur dans la base de données"""
     try:
         conection = mysql.connector.connect(
@@ -54,9 +54,9 @@ def creer_utilisateur(email, hashed_password, role_id=1):
         )
         cursor = conection.cursor()
 
-        query = "INSERT INTO utilisateurs (email, password, role_id) VALUES (%s, %s, %s)"
+        query = "INSERT INTO utilisateurs (email, password, competences, role_id) VALUES (%s, %s, %s, %s)"
 
-        cursor.execute(query, (email, hashed_password, role_id))
+        cursor.execute(query, (email, hashed_password, competences, role_id))
 
         conection.commit()
         cursor.close()
@@ -70,6 +70,27 @@ def creer_utilisateur(email, hashed_password, role_id=1):
     except Exception as e:
         print(f"Erreur inattendue : {e}")
         return False
+
+def get_all_jobs():
+    try:
+        conection = mysql.connector.connect(
+            host = os.getenv("DB_HOST", "db"),
+            user = os.getenv("MYSQL_USER"),
+            password = os.getenv("MYSQL_PASSWORD"),
+            database = os.getenv("MYSQL_DATABASE")
+        )
+        cursor = conection.cursor(dictionary=True)
+        query = "SELECT * FROM offres"
+        cursor.execute(query)
+        jobs = cursor.fetchall()
+
+        cursor.close()
+        conection.close()
+        return jobs
+
+    except Exception as e:
+        print(f"Erreur lors de la récupération des jobs : {e}")
+        return []
 
 
 def get_user_by_email(email):

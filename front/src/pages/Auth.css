@@ -129,3 +129,31 @@
   filter: brightness(1.1);
   box-shadow: 0 8px 20px var(--primary-glow);
 }
+
+
+.badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.skill-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.skill-badge:hover {
+  border-color: var(--primary);
+}
+
+.skill-badge.selected {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}

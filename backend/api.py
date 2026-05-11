@@ -7,11 +7,19 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from database_api import inserer_database
+from fastapi import APIRouter, Depends
+from feature_ia import get_matching_jobs
 
-# IMPORT des routes d'authentification[cite: 1]
 from routes import router as auth_router
 
 load_dotenv()
+
+router = APIRouter()
+
+@router.get("/recommendations/{email}")
+async def get_recommendations(email: str):
+    scored_jobs = get_matching_jobs(email)
+    return scored_jobs
 
 async def fetch_en_arriere_plan(interval_minutes: int):
     while True:
@@ -39,10 +47,8 @@ async def lifespan(app: FastAPI):
     print("Arrêt du serveur.")
     tache_fond.cancel()
 
-# 1. Création de l'application principale
 app = FastAPI(lifespan=lifespan)
 
-# 2. Inclusion du router d'authentification (doit être fait ici)[cite: 1]
 app.include_router(auth_router)
 
 @app.get("/")
@@ -57,7 +63,6 @@ def trigger_fetch():
         return {"message": f"{len(offres)} offres collectées"}
     return {"message": "Aucune nouvelle offre trouvée."}
 
-# --- Logique de collecte WeLoveDevs ---
 API_KEY  = os.getenv("WELOVEDEVS_API_KEY")
 BASE_URL = "https://epi-api.welovedevs.com/v1"
 HEADERS  = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
@@ -72,6 +77,7 @@ def fetch_offers(page=2, limit=50):
         return None
     finally:
         time.sleep(1)
+
 
 def normalize(raw):
     timesamp = raw.get("publishDate")

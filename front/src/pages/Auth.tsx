@@ -7,17 +7,35 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+
   const navigate = useNavigate();
+
+  const availableSkills = ["React", "Python", "Docker", "SQL", "FastAPI", "TypeScript", "NodeJS", "AWS"];
+
+  const toggleSkill = (skill: string) => {
+    if (selectedSkills.includes(skill)) {
+      setSelectedSkills(selectedSkills.filter(s => s !== skill));
+    } else {
+      setSelectedSkills([...selectedSkills, skill]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const endpoint = isLogin ? 'login' : 'register';
 
+    const skillsString = selectedSkills.join(', ');
+
     try {
       const response = await fetch(`/api/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+          competences: isLogin ? undefined : skillsString
+        }),
       });
 
       const data = await response.json();
@@ -45,20 +63,20 @@ const Auth = () => {
       <div className="glass-card auth-card">
 
         <div className="auth-tabs">
-        <button
+          <button
             type="button"
             className={isLogin ? "tab-btn active" : "tab-btn"}
             onClick={() => setIsLogin(true)}
-        >
+          >
             Connexion
-        </button>
-        <button
+          </button>
+          <button
             type="button"
             className={!isLogin ? "tab-btn active" : "tab-btn"}
             onClick={() => setIsLogin(false)}
-        >
+          >
             Inscription
-        </button>
+          </button>
         </div>
 
         <div className="brand-header">
@@ -89,6 +107,24 @@ const Auth = () => {
               required
             />
           </div>
+
+          {!isLogin && (
+            <div className="skills-selection">
+              <label>Mes compétences :</label>
+              <div className="badges-container">
+                {availableSkills.map((skill) => (
+                  <button
+                    key={skill}
+                    type="button"
+                    className={`skill-badge ${selectedSkills.includes(skill) ? 'selected' : ''}`}
+                    onClick={() => toggleSkill(skill)}
+                  >
+                    {skill}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <button type="submit" className="btn-login">
             {isLogin ? "Se connecter" : "S'inscrire"}

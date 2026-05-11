@@ -3,12 +3,12 @@ from pydantic import BaseModel, EmailStr
 from database_api import get_user_by_email, creer_utilisateur
 from auth import verify_mdp, obtenir_mdp_hasher, cree_acces_pour_token
 
-# On utilise APIRouter pour pouvoir l'inclure dans l'app principale
 router = APIRouter()
 
 class UserAuth(BaseModel):
     email: EmailStr
     password: str
+    competences: str = None
 
 class Token(BaseModel):
     access_token: str
@@ -25,7 +25,7 @@ async def register(user: UserAuth):
 
     hashed_pwd = obtenir_mdp_hasher(user.password)
 
-    success = creer_utilisateur(user.email, hashed_pwd, role_id=1)
+    success = creer_utilisateur(user.email, hashed_pwd, user.competences, role_id = 1)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

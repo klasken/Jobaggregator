@@ -15,24 +15,32 @@ def inserer_database(offres_clean):
         cursor = conection.cursor()
 
         insert_query = """
-            INSERT INTO offres (titre, entreprise_id, description, salaire_min, salaire_max, location, date, contract_type, source)
+            INSERT IGNORE INTO offres (titre, entreprise_id, description, salaire_min, salaire_max, location, date, contract_type, source)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         for offre in offres_clean:
-            params = []
-            cles_a_inserer = ["titre", "entreprise_id", "description", "salaire_min", "salaire_max", "location", "date", "contract_type", "source"]
+            try:
+                params = []
+                cles_a_inserer = ["titre", "entreprise_id", "description", "salaire_min", "salaire_max", "location", "date", "contract_type", "source"]
 
-            for cle in cles_a_inserer:
-                valeur = offre.get(cle)
-                if isinstance(valeur, list):
-                    params.append(", ".join(map(str, valeur)))
-                else:
-                    params.append(valeur)
+                for cle in cles_a_inserer:
+                    valeur = offre.get(cle)
+                    if isinstance(valeur, list):
+                        params.append(", ".join(map(str, valeur)))
+                    else:
+                        params.append(valeur)
 
-            cursor.execute(insert_query, tuple(params))
+                # Exécution pour CETTE offre
+                cursor.execute(insert_query, tuple(params))
+                
+                # Valide l'insertion de CETTE offre immédiatement
+                conection.commit() 
 
-        conection.commit()
+            except mysql.connector.Error as e:
+                print(f"Erreur sur une offre spécifique : {e}")
+                continue
+
         cursor.close()
         conection.close()
         print("Insertion réussie dans le SQL !")

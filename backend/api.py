@@ -9,8 +9,9 @@ from fastapi import FastAPI
 from database_api import inserer_database
 from fastapi import APIRouter, Depends
 from feature_ia import get_matching_jobs
-
+from database_api import get_user_by_email
 from routes import router as auth_router
+from database_api import get_filtered_jobs, get_stats
 
 load_dotenv()
 
@@ -141,3 +142,26 @@ def collect_everything(max_pages=5):
         nouveau_paquet = process_page(paquet_brut)
         toutes_les_offres.extend(nouveau_paquet)
     return toutes_les_offres
+
+
+
+@app.get("/api/dashboard/stats")
+async def dashboard_stats():
+    """Route pour afficher les compteurs en haut du dashboard"""
+    return get_stats()
+
+@app.get("/api/dashboard/jobs")
+async def dashboard_list(location: str = None, contract: str = None):
+    """Route pour la liste des jobs avec filtres optionnels"""
+    return get_filtered_jobs(location, contract)
+
+@app.get("/api/dashboard/user/{email}")
+async def dashboard_user_info(email: str):
+    """Récupère les infos de l'utilisateur pour la sidebar"""
+    user = get_user_by_email(email)
+    if user:
+        return {
+            "email": user["email"],
+            "competences": user["competences"]
+        }
+    return {"error": "Utilisateur non trouvé"}

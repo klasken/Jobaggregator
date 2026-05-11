@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
 interface StatItem {
@@ -11,7 +11,7 @@ interface StatItem {
   color: 'blue' | 'green' | 'purple' | 'orange';
 }
 
-const Dashboard: React.FC = () => { 
+const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Dashboard');
 
   const stats: StatItem[] = [
@@ -30,7 +30,7 @@ const Dashboard: React.FC = () => {
           <h2 className="brand-text">Job Aggregator</h2>
           <div className="nav-links">
             {['Dashboard', 'Recherche'].map((tab) => (
-              <button 
+              <button
                 key={tab}
                 className={`nav-link ${activeTab === tab ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab)}
@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           </Link>
-          
+
           <button className="btn-logout">
              Déconnexion <span>→</span>
           </button>

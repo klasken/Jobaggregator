@@ -1,0 +1,19 @@
+/* Ce code supprime les marges par défaut du navigateur */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #0a0a0b; 
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: initial;
+  min-width: 320px;
+}

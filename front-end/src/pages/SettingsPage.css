@@ -1,0 +1,72 @@
+:root {
+  --bg-main: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --border-color: #e2e8f0;
+}
+
+/* Mode Sombre Global - Synchronisé avec App.tsx */
+body.theme-dark {
+  --bg-main: #0f172a;
+  --card-bg: #1e293b;
+  --text-main: #f8fafc;
+  --border-color: #334155;
+}
+
+.settings-container { 
+  display: grid; 
+  grid-template-columns: 260px 1fr; 
+  height: 100vh; 
+  font-family: 'Inter', sans-serif; 
+  background: var(--bg-main);
+  transition: background-color 0.3s ease;
+}
+
+.settings-main { 
+  padding: 40px; 
+  background: var(--bg-main); 
+  overflow-y: auto; 
+  color: var(--text-main); 
+  transition: all 0.3s ease;
+}
+
+.settings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 30px; }
+
+.settings-card { 
+  background: var(--card-bg); 
+  padding: 24px; 
+  border-radius: 16px; 
+  border: 1px solid var(--border-color); 
+  transition: all 0.3s ease;
+}
+
+.card-title { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: #3b82f6; }
+.card-title h3 { margin: 0; color: var(--text-main); font-size: 1.1rem; }
+
+.setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
+
+select { 
+  padding: 8px 12px; 
+  border-radius: 8px; 
+  border: 1px solid var(--border-color); 
+  background: var(--bg-main); 
+  color: var(--text-main); 
+  outline: none; 
+}
+
+.toggle-btn { width: 48px; height: 26px; background: #cbd5e1; border-radius: 20px; border: none; cursor: pointer; position: relative; transition: 0.3s; }
+.toggle-btn.on { background: #3b82f6; }
+.toggle-cursor { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; }
+.toggle-btn.on .toggle-cursor { left: 25px; }
+
+.btn-test-audio { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+/* DALTONISME  */
+body.access-deuteranopia { filter: contrast(110%) brightness(110%) sepia(20%) hue-rotate(-10deg); }
+body.access-protanopia { filter: saturate(140%) hue-rotate(-20deg); }
+body.access-tritanopia { filter: saturate(120%) hue-rotate(180deg); }
+
+/* MALVOYANTS */
+body.access-large-text { font-size: 1.25rem !important; }
+body.access-large-text h1 { font-size: 2.5rem !important; }
+body.access-large-text .nav-item { font-size: 1.2rem !important; }

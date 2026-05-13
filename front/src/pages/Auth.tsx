@@ -4,132 +4,116 @@ import './Auth.css';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-
+  const [step, setStep] = useState(1);
   const navigate = useNavigate();
 
-  const availableSkills = ["React", "Python", "Docker", "SQL", "FastAPI", "TypeScript", "NodeJS", "AWS"];
-
-  const toggleSkill = (skill: string) => {
-    if (selectedSkills.includes(skill)) {
-      setSelectedSkills(selectedSkills.filter(s => s !== skill));
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLogin && step === 1) {
+      setStep(2);
     } else {
-      setSelectedSkills([...selectedSkills, skill]);
+      // ON SIMULE LA CONNEXION
+      localStorage.setItem('isAuthenticated', 'true');
+      // REDIRECTION VERS LE DASHBOARD
+      navigate('/dashboard'); 
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const endpoint = isLogin ? 'login' : 'register';
-
-    const skillsString = selectedSkills.join(', ');
-
-    try {
-      const response = await fetch(`/api/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          competences: isLogin ? undefined : skillsString
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert(isLogin ? "Connexion réussie !" : "Inscription réussie !");
-
-        if (isLogin && data.access_token) {
-          localStorage.setItem('token', data.access_token);
-          navigate('/');
-        } else if (!isLogin) {
-          setIsLogin(true);
-        }
-      } else {
-        alert("Erreur : " + (data.detail || "Identifiants incorrects"));
-      }
-    } catch (err) {
-      console.error("Erreur back-end:", err);
-      alert("Impossible de contacter le serveur.");
-    }
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setStep(1);
   };
 
   return (
-    <div className="login-screen-wrapper">
-      <div className="glass-card auth-card">
+    <div className="auth-container">
+      <div className="auth-card-full"> 
+        <header className="auth-header">
+          <h1>{isLogin ? 'Connexion' : 'Création de profil'}</h1>
+          <p className="subtitle">
+            {isLogin ? 'Heureux de vous revoir !' : `Étape ${step} sur 2`}
+          </p>
+        </header>
 
-        <div className="auth-tabs">
-          <button
-            type="button"
-            className={isLogin ? "tab-btn active" : "tab-btn"}
-            onClick={() => setIsLogin(true)}
-          >
-            Connexion
-          </button>
-          <button
-            type="button"
-            className={!isLogin ? "tab-btn active" : "tab-btn"}
-            onClick={() => setIsLogin(false)}
-          >
-            Inscription
-          </button>
-        </div>
-
-        <div className="brand-header">
-          <span className="brand-badge">M</span>
-          <h1>{isLogin ? "Content de vous revoir" : "Créer un compte"}</h1>
-          <p>{isLogin ? "Entrez vos accès pour continuer" : "Rejoignez-nous en quelques secondes"}</p>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="votre@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Mot de passe</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {!isLogin && (
-            <div className="skills-selection">
-              <label>Mes compétences :</label>
-              <div className="badges-container">
-                {availableSkills.map((skill) => (
-                  <button
-                    key={skill}
-                    type="button"
-                    className={`skill-badge ${selectedSkills.includes(skill) ? 'selected' : ''}`}
-                    onClick={() => toggleSkill(skill)}
-                  >
-                    {skill}
-                  </button>
-                ))}
+        <form onSubmit={handleSubmit} className="main-auth-form">
+          {isLogin ? (
+            <div className="form-section">
+              <div className="form-field">
+                <label>Email Professionnel</label>
+                <input type="email" placeholder="nom@exemple.com" required />
               </div>
+              <div className="form-field">
+                <label>Mot de passe</label>
+                <input type="password" placeholder="••••••••" required />
+              </div>
+            </div>
+          ) : (
+            <div className="form-section">
+              {step === 1 ? (
+                <>
+                  <div className="form-row">
+                    <div className="form-field"><label>Prénom</label><input type="text" required /></div>
+                    <div className="form-field"><label>Nom</label><input type="text" required /></div>
+                  </div>
+                  <div className="form-field"><label>Email</label><input type="email" required /></div>
+                  <div className="form-field"><label>Mot de passe</label><input type="password" required /></div>
+                </>
+              ) : (
+                <>
+                  <div className="form-field">
+                    <label>Localisation</label>
+                    <select required className="auth-select">
+                      <option value="">Sélectionnez votre région</option>
+                      <option value="ara">Auvergne-Rhône-Alpes</option>
+                      <option value="bre">Bretagne</option>
+                      <option value="hdf">Hauts-de-France</option>
+                      <option value="idf">Île-de-France</option>
+                      <option value="naq">Nouvelle-Aquitaine</option>
+                      <option value="pac">Provence-Alpes-Côte d'Azur</option>
+                      <option value="remote">🌍 Full Remote (Télétravail)</option>
+                    </select>
+                  </div>
+                  <div className="form-field">
+                    <label>Expertises techniques</label>
+                    <div className="skills-grid">
+                      {['React', 'Node', 'Python', 'SQL', 'DevOps', 'Go'].map(s => (
+                        <label key={s} className="skill-chip">
+                          <input type="checkbox" value={s.toLowerCase()} />
+                          <span>{s}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="form-field">
+                    <label>Séniorité</label>
+                    <select required className="auth-select">
+                      <option value="jr">Junior (0-2 ans)</option>
+                      <option value="it">Intérmediaire (3-5 ans)</option>
+                      <option value="sr">Senior (5+ ans)</option>
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
-          <button type="submit" className="btn-login">
-            {isLogin ? "Se connecter" : "S'inscrire"}
-          </button>
+          <div className="button-stack">
+            <button type="submit" className="btn-auth-submit">
+              {isLogin ? 'Se connecter' : (step === 1 ? 'Suivant' : 'Finaliser')}
+            </button>
+            {!isLogin && step === 2 && (
+              <button type="button" className="btn-back" onClick={() => setStep(1)}>
+                Retour à l'étape précédente
+              </button>
+            )}
+          </div>
         </form>
+
+        <footer className="auth-footer">
+          <span>{isLogin ? "Nouveau ici ?" : "Déjà inscrit ?"}</span>
+          <button className="toggle-btn" onClick={toggleMode}>
+            {isLogin ? "Créer un compte" : "Se connecter"}
+          </button>
+        </footer>
       </div>
     </div>
   );

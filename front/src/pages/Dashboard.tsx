@@ -58,60 +58,50 @@ const Dashboard: React.FC = () => {
         </div>
       </nav>
 
-      <main className="dashboard-content">
-        <header className="page-header">
-          <h1>Tableau de bord</h1>
-          <p>Bienvenue ! Voici l'analyse de vos opportunités actuelles.</p>
+      <main className="db-content">
+        <header className="db-header">
+          <h2>Tableau de bord personnel</h2>
+          <button className="btn-refresh">Actualiser les données</button>
         </header>
 
-        <section className="stats-container">
-          {stats.map((stat) => (
-            <div key={stat.id} className="glass-card stat-card">
-              <div className="stat-top">
-                <div className={`icon-box ${stat.color}`}>{stat.icon}</div>
-                <span className={`badge ${stat.trend.includes('+') ? 'success' : 'info'}`}>
-                  {stat.trend}
-                </span>
-              </div>
-              <div className="stat-bottom">
-                <span className="stat-label">{stat.label}</span>
-                <h3 className="stat-number">{stat.value}</h3>
-              </div>
+        {/* SECTION DATA & AI - EXIGENCES PROJET */}
+        <section className="insight-grid">
+          <div className="card insight-card ai-feature">
+            <div className="ai-badge">Propulsé par IA Local</div>
+            <h3>Analyse de profil</h3>
+            <p>D'après les 500 dernières offres collectées, votre stack est en hausse de <strong>12%</strong> en demande ce mois-ci.</p>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{width: '75%'}}></div>
             </div>
-          ))}
-        </section>
-
-        <section className="data-grid">
-          <div className="glass-card main-chart">
-            <div className="card-header">
-              <h3>Tendance des offres</h3>
-              <div className="chart-actions">
-                <button className="btn-mini">7 jours</button>
-                <button className="btn-mini">30 jours</button>
-              </div>
-            </div>
-            <div className="visual-placeholder">
-               <div className="wave-container">
-                  <div className="wave-svg"></div>
-               </div>
-            </div>
+            <small>Pertinence du marché : Excellente</small>
           </div>
 
-          <div className="glass-card side-panel">
-            <div className="card-header">
-              <h3>Types de contrats</h3>
+          <div className="card insight-card data-feature">
+            <h3>Distribution des Salaires</h3>
+            <div className="dummy-chart">
+              <div className="bar" style={{height: '40%'}}></div>
+              <div className="bar" style={{height: '60%'}}></div>
+              <div className="bar" style={{height: '90%'}}></div>
+              <div className="bar" style={{height: '50%'}}></div>
             </div>
-            <div className="contract-list">
-              <div className="contract-item">
-                <span>CDI</span>
-                <div className="progress-bar"><div className="fill" style={{width: '70%'}}></div></div>
-                <span>10</span>
-              </div>
-              <div className="contract-item">
-                <span>Freelance</span>
-                <div className="progress-bar"><div className="fill" style={{width: '20%'}}></div></div>
-                <span>2</span>
-              </div>
+            <p className="chart-label">Moyenne : 48k€ / an (Junior)</p>
+          </div>
+        </section>
+
+        <section className="last-activity">
+          <h3>Offres recommandées pour vous</h3>
+          <div className="activity-table">
+            <div className="table-row header">
+              <span>Entreprise</span>
+              <span>Poste</span>
+              <span>Score IA</span>
+              <span>Status</span>
+            </div>
+            <div className="table-row">
+              <span>Google</span>
+              <span>SRE Engineer</span>
+              <span className="score">98%</span>
+              <span className="badge-status">Ouvert</span>
             </div>
           </div>
         </section>

@@ -26,12 +26,10 @@ jobs:
 
       # Test du Build Frontend
       - name: Build Frontend Image
-        run: docker build ./front -t job-aggregator-front:latest
+        run: docker build ./front-end -t job-aggregator-front:latest
 
       # Vérification Docker Compose
       - name: Check Docker Compose Configuration
         run: docker compose config
 
 
-# jobs:
-#    mirror:

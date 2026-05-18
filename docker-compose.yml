@@ -1,10 +1,10 @@
 services:
-#  frontend:
-#    build: ./frontend
-#    ports:
-#      - "8080:80"
-#    networks:
-#      - frontend_network
+  frontend:
+   build: ./front-end
+  ports:
+      - "8080:80"
+  networks:
+      - frontend_network
 
   backend:
     build: ./backend

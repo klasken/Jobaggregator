@@ -259,3 +259,49 @@ body.theme-dark {
 .btn-apply:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.2); }
 
 body.access-large-text .research-page { font-size: 1.15rem !important; }
+
+/* =========================================
+   BARRE DE RECOMMANDATION IA (ROSE)
+========================================= */
+
+.ai-match-container {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-match-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.ai-match-bar-bg {
+  width: 100%;
+  height: 8px;
+  background-color: var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.ai-match-bar-fill {
+  height: 100%;
+  /* Dégradé rose pour donner un côté "IA / Magique" */
+  background: linear-gradient(90deg, #ec4899, #f472b6);
+  border-radius: 10px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* On s'assure que le texte IA ressort bien dans l'encart */
+.ai-summary-box .ai-title {
+  color: #ec4899; /* Change le bleu par du rose pour le titre IA */
+}
+
+.ai-summary-box {
+  background: rgba(236, 72, 153, 0.05); /* Fond légèrement rose */
+  border: 1px solid rgba(236, 72, 153, 0.3); /* Bordure rose claire */
+}

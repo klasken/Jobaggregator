@@ -1,6 +1,6 @@
 import React from 'react';
 import './SettingsPage.css';
-import { 
+import {
   LayoutDashboard, Briefcase, Bell, Settings, LogOut, Home, User,
    Sun, Eye, Languages, Volume2
 } from "lucide-react";
@@ -17,8 +17,8 @@ interface SettingsProps {
   userData: any;
 }
 
-const SettingsPage: React.FC<SettingsProps> = ({ 
-  onNavigate, theme, setTheme, accessibility, setAccessibility, language, setLanguage, t, userData 
+const SettingsPage: React.FC<SettingsProps> = ({
+  onNavigate, theme, setTheme, accessibility, setAccessibility, language, setLanguage, t, userData
 }) => {
 
   const speakTest = () => {
@@ -45,15 +45,15 @@ const SettingsPage: React.FC<SettingsProps> = ({
         </nav>
         <div className="sidebar-user">
           <div className="user-avatar">
-            {userData.avatar ? (
+            {userData?.avatar ? (
               <img src={userData.avatar} alt="Profil" style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
             ) : (
-              userData.name.charAt(0)
+              userData?.nom?.charAt(0) || userData?.name?.charAt(0) || "U"
             )}
           </div>
           <div className="user-meta">
-            <p className="u-name">{userData.name}</p>
-            <button className="u-logout" onClick={() => onNavigate('home')}><LogOut size={14} /> {t.logout}</button>
+            <p className="u-name">{userData?.nom || userData?.name || "Utilisateur"}</p>
+            <button className="u-logout" onClick={() => onNavigate('logout')}><LogOut size={14} /> {t.logout}</button>
           </div>
         </div>
       </aside>
@@ -69,7 +69,7 @@ const SettingsPage: React.FC<SettingsProps> = ({
             <div className="card-title"><Sun size={20} /> <h3>Apparence</h3></div>
             <div className="setting-row">
               <span>Mode Sombre</span>
-              <button 
+              <button
                 className={`toggle-btn ${theme === 'dark' ? 'on' : ''}`}
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
               >
@@ -103,7 +103,7 @@ const SettingsPage: React.FC<SettingsProps> = ({
             </div>
             <div className="setting-row">
               <span>Texte Agrandi</span>
-              <button 
+              <button
                 className={`toggle-btn ${accessibility === 'large-text' ? 'on' : ''}`}
                 onClick={() => setAccessibility(accessibility === 'large-text' ? 'none' : 'large-text')}
               >

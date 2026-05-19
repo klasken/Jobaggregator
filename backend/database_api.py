@@ -13,22 +13,37 @@ def get_db_connection():
         database=os.getenv("MYSQL_DATABASE")
     )
 
+def update_user_profile_in_db(email: str, nom: str, competences: str):
+    """Met à jour le nom et les compétences de l'utilisateur dans la base de données"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = "UPDATE utilisateurs SET nom = %s, competences = %s WHERE email = %s"
+        cursor.execute(query, (nom, competences, email))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Erreur lors de la mise à jour de la BDD : {e}")
+        return False
 
 def inserer_database(offres_clean):
-    """Insère les offres d'emploi collectées dans la base de données."""
     try:
         connection = get_db_connection()
         cursor = connection.cursor()
 
         insert_query = """
-            INSERT IGNORE INTO offres (titre, entreprise_id, description, salaire_min, salaire_max, location, date, contract_type, source)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT IGNORE INTO offres (titre, entreprise_nom, description, salaire_min, salaire_max, location, date, contract_type, source, url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         for offre in offres_clean:
             try:
                 params = []
-                cles_a_inserer = ["titre", "entreprise_id", "description", "salaire_min", "salaire_max", "location", "date", "contract_type", "source"]
+                cles_a_inserer = ["titre", "entreprise_nom", "description", "salaire_min", "salaire_max", "location", "date", "contract_type", "source", "url"]
 
                 for cle in cles_a_inserer:
                     valeur = offre.get(cle)
@@ -56,14 +71,14 @@ def inserer_database(offres_clean):
     except Exception as e:
         print(f"Erreur inattendue : {e}")
 
-def creer_utilisateur(email, hashed_password, competences, role_id=1):
+def creer_utilisateur(nom, email, hashed_password, competences, role_id=1):
     """Crée un nouvel utilisateur dans la base de données."""
     try:
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        query = "INSERT INTO utilisateurs (email, password, competences, role_id) VALUES (%s, %s, %s, %s)"
-        cursor.execute(query, (email, hashed_password, competences, role_id))
+        query = "INSERT INTO utilisateurs (nom, email, password, competences, role_id) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(query, (nom, email, hashed_password, competences, role_id))
 
         connection.commit()
         cursor.close()

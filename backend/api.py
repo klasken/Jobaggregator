@@ -12,6 +12,8 @@ from feature_ia import get_matching_jobs
 from database_api import get_user_by_email
 from routes import router as auth_router
 from database_api import get_filtered_jobs, get_stats
+from pydantic import BaseModel
+from database_api import update_user_profile_in_db # Ajoute ça à tes imports existants
 
 load_dotenv()
 
@@ -94,7 +96,8 @@ def normalize(raw):
     salary_per_year_var = raw.get("Salary") or raw.get("salary") or {}
     contract_type_var = raw.get("Job") or raw.get("job") or {}
     titre = raw.get("title")
-    entreprise_id = raw.get("companyId")
+
+    entreprise_nom = (raw.get("smallCompany") or {}).get("companyName") or "NOM_INTROUVABLE"
     description = raw.get("descriptionPreview")
 
     if titre is None or date_finale is None or entreprise_id is None or description is None:
@@ -112,7 +115,7 @@ def normalize(raw):
 
     return {
         "titre" : titre,
-        "entreprise_id" : entreprise_id,
+        "entreprise_nom" : entreprise_nom,
         "salaire_min" : salary_min if salary_min else 0,
         "salaire_max" : salary_max if salary_max else 0,
         "description" : description,
@@ -157,11 +160,25 @@ async def dashboard_list(location: str = None, contract: str = None):
 
 @app.get("/api/dashboard/user/{email}")
 async def dashboard_user_info(email: str):
-    """Récupère les infos de l'utilisateur pour la sidebar"""
+    """Récupère les infos de l'utilisateur pour la sidebar et le profil"""
     user = get_user_by_email(email)
     if user:
         return {
+            "nom": user["nom"],
             "email": user["email"],
             "competences": user["competences"]
         }
     return {"error": "Utilisateur non trouvé"}
+
+
+class ProfileUpdateSchema(BaseModel):
+    nom: str
+    competences: str
+
+@app.put("/api/dashboard/user/{email}")
+async def update_user_profile(email: str, profile_data: ProfileUpdateSchema):
+    """Route pour mettre à jour les données du profil de l'utilisateur"""
+    success = update_user_profile_in_db(email, profile_data.nom, profile_data.competences)
+    if success:
+        return {"status": "success", "message": "Profil mis à jour avec succès"}
+    return {"status": "error", "message": "Impossible de mettre à jour le profil en BDD"}, 500

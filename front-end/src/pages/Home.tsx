@@ -10,10 +10,32 @@ interface HomeProps {
   isLoggedIn: boolean;
   theme: string;
   setTheme: (t: string) => void;
+  setHomeFilters: (filters: { role: string; city: string }) => void; // Ajout du typage pour la fonction de filtres
 }
 
-const Home: React.FC<HomeProps> = ({ onLoginClick, onRegisterClick, onDashboardClick, onNavigate, isLoggedIn, theme, setTheme }) => {
+const Home: React.FC<HomeProps> = ({
+  onLoginClick,
+  onRegisterClick,
+  onDashboardClick,
+  onNavigate,
+  isLoggedIn,
+  theme,
+  setTheme,
+  setHomeFilters // Récupération de la prop de filtres
+}) => {
   const [showSettings, setShowSettings] = useState(false);
+
+  // États locaux pour stocker la saisie utilisateur
+  const [roleInput, setRoleInput] = useState('');
+  const [cityInput, setCityInput] = useState('');
+
+  // Fonction déclenchée au clic sur "Rechercher"
+  const handleSearch = () => {
+    // On envoie les filtres à l'état global de App.tsx
+    setHomeFilters({ role: roleInput, city: cityInput });
+    // On navigue vers la page de recherche
+    onNavigate('research');
+  };
 
   return (
     <div className={theme === "dark" ? "home-dark-theme" : "home-light-theme"}>
@@ -29,7 +51,7 @@ const Home: React.FC<HomeProps> = ({ onLoginClick, onRegisterClick, onDashboardC
             <a href="#" onClick={() => onNavigate('salaries')}>Estimation Salaires</a>
           </div>
         </div>
-        
+
         <div className="nav-right" style={{ position: 'relative' }}>
           <button className="nav-icon-btn" onClick={() => setShowSettings(!showSettings)}>
             <Settings size={20} />
@@ -70,17 +92,27 @@ const Home: React.FC<HomeProps> = ({ onLoginClick, onRegisterClick, onDashboardC
 
         <h1>Trouvez le job qui <br />vous fait <span className="text-blue">vibrer.</span></h1>
         <p>Accédez à des milliers d'offres tech exclusives centralisées pour vous.</p>
-        
+
         <div className="search-container">
           <div className="search-box">
             <Search className="search-icon" size={20} />
-            <input type="text" placeholder="Développeur, Data, Product..." />
+            <input
+              type="text"
+              placeholder="Développeur, Data, Product..."
+              value={roleInput}
+              onChange={(e) => setRoleInput(e.target.value)}
+            />
           </div>
           <div className="search-box">
             <MapPin className="search-icon" size={20} />
-            <input type="text" placeholder="Paris, Remote, Lyon..." />
+            <input
+              type="text"
+              placeholder="Paris, Remote, Lyon..."
+              value={cityInput}
+              onChange={(e) => setCityInput(e.target.value)}
+            />
           </div>
-          <button className="main-search-btn" onClick={() => onNavigate('research')}>Rechercher</button>
+          <button className="main-search-btn" onClick={handleSearch}>Rechercher</button>
         </div>
 
         <div className="hero-footer-info">

@@ -6,9 +6,14 @@ from auth import verify_mdp, obtenir_mdp_hasher, cree_acces_pour_token
 router = APIRouter()
 
 class UserAuth(BaseModel):
+    nom: str
     email: EmailStr
     password: str
     competences: str = None
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 class Token(BaseModel):
     access_token: str
@@ -16,16 +21,13 @@ class Token(BaseModel):
 
 @router.post("/api/register", status_code=status.HTTP_201_CREATED)
 async def register(user: UserAuth):
-    """Route d'inscription pour le frontend."""
     if get_user_by_email(user.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cet email est déjà utilisé"
         )
-
     hashed_pwd = obtenir_mdp_hasher(user.password)
-
-    success = creer_utilisateur(user.email, hashed_pwd, user.competences, role_id = 1)
+    success = creer_utilisateur(user.nom, user.email, hashed_pwd, user.competences, role_id = 1)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -35,7 +37,7 @@ async def register(user: UserAuth):
     return {"message": "Utilisateur créé avec succès"}
 
 @router.post("/api/login", response_model=Token)
-async def login(user: UserAuth):
+async def login(user: UserLogin):
     """Route de connexion."""
     db_user = get_user_by_email(user.email)
 

@@ -3,7 +3,7 @@ import './Auth.css';
 import { Mail, Lock, User, Rocket, ArrowRight, ArrowLeft, Moon, Sun, Briefcase, CheckCircle } from 'lucide-react';
 
 interface AuthProps {
-  onLoginSuccess: () => void;
+  onLoginSuccess: (email: string) => void; // Mis à jour pour accepter l'email
   theme: string;
   setTheme: (t: string) => void;
   initialStep?: 'login' | 'register';
@@ -23,9 +23,57 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess, theme, setTheme, initialSte
     setSelectedPostTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
   };
 
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.access_token);
+        onLoginSuccess(email); // Envoi de l'email au App.tsx
+      } else {
+        const errorData = await response.json();
+        alert(errorData.detail || "Erreur d'identifiants");
+      }
+    } catch (error) {
+      console.error("Erreur serveur", error);
+      alert("Impossible de contacter le serveur.");
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+      const competencesString = selectedSkills.join(', ');
+
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom: fullName,
+          email,
+          password,
+          competences: competencesString
+        }),
+      });
+
+      if (response.ok) {
+        alert("Compte créé avec succès ! Connectez-vous.");
+        setStep('login');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.detail || "Erreur lors de l'inscription");
+      }
+    } catch (error) {
+      console.error("Erreur serveur", error);
+    }
+  };
+
   return (
     <div className="auth-container">
-      {/* Bouton Dark Mode  */}
       <button className="theme-toggle-mini" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
       </button>
@@ -64,7 +112,7 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess, theme, setTheme, initialSte
           </div>
         )}
 
-        {/* REGISTER */}
+        {/* ----------------- REGISTER ----------------- */}
         {step === 'register' && (
           <div className="auth-step-fade">
             <div className="auth-header">
@@ -101,7 +149,7 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess, theme, setTheme, initialSte
           </div>
         )}
 
-        {/*  ONBOARDING */}
+        {/* ----------------- ONBOARDING ----------------- */}
         {step === 'onboarding' && (
           <div className="auth-step-fade">
             <button className="btn-back" onClick={() => setStep('register')}>
@@ -116,8 +164,8 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess, theme, setTheme, initialSte
               <label>Langages & Frameworks</label>
               <div className="chips-grid">
                 {languages.map(lang => (
-                  <span 
-                    key={lang} 
+                  <span
+                    key={lang}
                     className={`auth-chip ${selectedSkills.includes(lang) ? 'active' : ''}`}
                     onClick={() => toggleSkill(lang)}
                   >
@@ -131,8 +179,8 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess, theme, setTheme, initialSte
               <label>Type de poste recherché</label>
               <div className="chips-container">
                 {postTypes.map(type => (
-                  <span 
-                    key={type} 
+                  <span
+                    key={type}
                     className={`auth-chip ${selectedPostTypes.includes(type) ? 'active' : ''}`}
                     onClick={() => togglePostType(type)}
                   >

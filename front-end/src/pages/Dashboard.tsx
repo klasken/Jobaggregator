@@ -1,7 +1,7 @@
 import React from 'react';
 import './Dashboard.css';
-import { jobs } from './Research'; 
-import { 
+import { jobs } from './Research';
+import {
   LayoutDashboard, Briefcase, Bell, Settings, LogOut, Home, User,
   CheckCircle, Clock, XCircle, Send, Search, Filter, Bookmark
 } from "lucide-react";
@@ -43,12 +43,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userDat
             {userData.avatar ? (
               <img src={userData.avatar} alt="Profil" style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
             ) : (
-              userData.name.charAt(0)
+              <span>{userData?.nom?.charAt(0) || userData?.name?.charAt(0) || "U"}</span>
             )}
           </div>
           <div className="user-meta">
-            <p className="u-name">{userData.name}</p>
-            <button className="u-logout" onClick={() => onNavigate('home')}><LogOut size={14} /> {t.logout}</button>
+            <p className="u-name">{userData?.nom || userData?.name || "Utilisateur"}</p>
+            {/* Correction déconnexion liée à l'action globale 'logout' */}
+            <button className="u-logout" onClick={() => onNavigate('logout')}><LogOut size={14} /> {t.logout}</button>
           </div>
         </div>
       </aside>
@@ -107,9 +108,24 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userDat
                     <td><span className={`status-badge ${app.color}`}>{app.status}</span></td>
                     <td><button className="btn-view">Détails</button></td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {favoriteJobs.map(job => (
+                    <tr key={job.id}>
+                      <td className="bold">{job.entreprise_nom}</td>
+                      <td>{job.titre}</td>
+                      <td className="text-muted">{job.date || "Récemment"}</td>
+                      <td><span className="status-badge warning">{job.contract_type || "Non spécifié"}</span></td>
+                      <td><button className="btn-view" onClick={() => onNavigate('research')}>Consulter</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="empty-state" style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>
+                <p>Aucune offre sauvegardée pour le moment. Allez dans l'onglet Offres pour ajouter des favoris.</p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -141,7 +157,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userDat
                       <td className="bold">
                         <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                           <Bookmark size={14} style={{color: '#3b82f6'}} fill="#3b82f6"/>
-                          {job.company}
+                          {job.entreprise_nom}
                         </div>
                       </td>
                       <td>{job.title}</td>
@@ -156,8 +172,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userDat
               <div className="empty-state" style={{textAlign: 'center', padding: '40px', color: '#64748b'}}>
                 <Bookmark size={40} style={{marginBottom: '16px', opacity: 0.2}} />
                 <p>Vous n'avez aucune offre épinglée pour le moment.</p>
-                <button 
-                  className="btn-view" 
+                <button
+                  className="btn-view"
                   style={{marginTop: '16px'}}
                   onClick={() => onNavigate('research')}
                 >

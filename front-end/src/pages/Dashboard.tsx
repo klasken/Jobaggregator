@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
-import { jobs } from './Research';
 import {
-  LayoutDashboard, Briefcase, Bell, Settings, LogOut, Home, User,
   CheckCircle, Clock, XCircle, Send, Search, Filter, Bookmark
 } from "lucide-react";
+
+// On importe BarChart et Bar pour faire des diagrammes en bâtons
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
 
 interface DashboardProps {
   onNavigate: (page: any) => void;
@@ -13,78 +16,123 @@ interface DashboardProps {
   userData: any;
 }
 
-const applications = [
-  { id: 1, company: "TechVision", position: "Senior Frontend Developer", date: "12 Mai 2024", status: "En attente", color: "warning" },
-  { id: 2, company: "CloudStack", position: "DevOps Engineer", date: "10 Mai 2024", status: "Accepté", color: "success" },
-  { id: 3, company: "StartupLab", position: "Fullstack Developer", date: "05 Mai 2024", status: "Refusé", color: "danger" },
-  { id: 4, company: "DataCorp", position: "Backend Engineer", date: "01 Mai 2024", status: "En attente", color: "warning" },
-];
-
 const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userData }) => {
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/dashboard/jobs")
+      .then(res => res.json())
+      .then(data => setJobs(data))
+      .catch(err => console.error("Erreur chargement jobs:", err));
+
+    if (userData?.email) {
+      fetch(`http://localhost:8000/api/applications/${encodeURIComponent(userData.email)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setApplications(data);
+          }
+        })
+        .catch(err => console.error("Erreur chargement candidatures:", err));
+    }
+  }, [userData?.email]);
+
   const favoriteJobs = jobs.filter(job => savedJobs.includes(job.id));
+
+  const stats = {
+    envoyees: applications.length,
+    attente: applications.filter(app => app.status === "En attente").length,
+    acceptees: applications.filter(app => app.status === "Accepté").length,
+    refusees: applications.filter(app => app.status === "Refusé").length
+  };
+
+  // --- PRÉPARATION DES DONNÉES DU GRAPHIQUE ---
+  // On crée un tableau avec des 0 par défaut pour faire joli
+  const dataBarres = [
+    { mois: 'Janv.', postulees: 0, positives: 0 },
+    { mois: 'Févr.', postulees: 0, positives: 0 },
+    { mois: 'Mars', postulees: 0, positives: 0 },
+    { mois: 'Avril', postulees: 0, positives: 0 },
+    { mois: 'Mai', postulees: 0, positives: 0 },
+    { mois: 'Juin', postulees: 0, positives: 0 } // On va lier ce dernier mois à vos vraies données !
+  ];
+
+  // On remplit le mois en cours avec le VRAI total de vos candidatures
+  // Si vous avez 0 candidature (applications.length === 0), ça restera à 0 !
+  dataBarres[5].postulees = applications.length;
+  dataBarres[5].positives = applications.filter(app => app.status === "Accepté").length;
 
   return (
     <div className="dash-container">
-      <aside className="research-sidebar">
-        <div className="sidebar-brand" onClick={() => onNavigate('home')} style={{cursor: 'pointer'}}>
-          <div className="brand-icon"><Briefcase size={20} /></div>
-          <span>EpiDevs</span>
-        </div>
-        <nav className="sidebar-nav">
-          <div className="nav-item" onClick={() => onNavigate('home')}><Home size={18} /> Accueil</div>
-          <div className="nav-item active"><LayoutDashboard size={18} /> {t.dashboard}</div>
-          <div className="nav-item" onClick={() => onNavigate('research')}><Briefcase size={18} /> {t.jobs}</div>
-          <div className="nav-item"><Bell size={18} /> {t.notifs}</div>
-          <div className="nav-item" onClick={() => onNavigate('profile')}><User size={18} /> {t.profile}</div>
-          <div className="nav-item" onClick={() => onNavigate('settings')}><Settings size={18} /> {t.settings}</div>
-        </nav>
-        <div className="sidebar-user">
-          <div className="user-avatar">
-            {userData.avatar ? (
-              <img src={userData.avatar} alt="Profil" style={{width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover'}} />
-            ) : (
-              <span>{userData?.nom?.charAt(0) || userData?.name?.charAt(0) || "U"}</span>
-            )}
-          </div>
-          <div className="user-meta">
-            <p className="u-name">{userData?.nom || userData?.name || "Utilisateur"}</p>
-            {/* Correction déconnexion liée à l'action globale 'logout' */}
-            <button className="u-logout" onClick={() => onNavigate('logout')}><LogOut size={14} /> {t.logout}</button>
-          </div>
-        </div>
-      </aside>
-
       <main className="dash-main">
         <header className="dash-header">
-          <h1>{t.dashboard}</h1>
-          <p>Suivez l'état de vos candidatures en temps réel.</p>
+          <h1>Bonjour {userData?.nom || userData?.name || "Utilisateur"} 👋</h1>
+          <p>{t.dashSub || "Suivez l'état de vos candidatures en temps réel."}</p>
         </header>
 
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-icon blue"><Send size={20} /></div>
-            <div className="stat-info"><h3>12</h3><p>Envoyées</p></div>
+            <div className="stat-info"><h3>{stats.envoyees}</h3><p>{t.statSent || "Envoyées"}</p></div>
           </div>
           <div className="stat-card">
             <div className="stat-icon orange"><Clock size={20} /></div>
-            <div className="stat-info"><h3>8</h3><p>En attente</p></div>
+            <div className="stat-info"><h3>{stats.attente}</h3><p>{t.statPending || "En attente"}</p></div>
           </div>
           <div className="stat-card">
             <div className="stat-icon green"><CheckCircle size={20} /></div>
-            <div className="stat-info"><h3>2</h3><p>Acceptées</p></div>
+            <div className="stat-info"><h3>{stats.acceptees}</h3><p>{t.statAccepted || "Acceptées"}</p></div>
           </div>
           <div className="stat-card">
             <div className="stat-icon red"><XCircle size={20} /></div>
-            <div className="stat-info"><h3>2</h3><p>Refusées</p></div>
+            <div className="stat-info"><h3>{stats.refusees}</h3><p>{t.statRefused || "Refusées"}</p></div>
           </div>
         </div>
 
-        <section className="app-list-section">
+        {/* --- DÉBUT DU GRAPHIQUE EN BARRES --- */}
+        <section className="app-list-section" style={{ marginTop: '32px' }}>
           <div className="section-head">
-            <h2>Mes candidatures</h2>
+            <h2>Évolution de mes candidatures</h2>
+          </div>
+          <div style={{ width: '100%', height: 350, backgroundColor: 'var(--card-bg, #ffffff)', padding: '20px', borderRadius: '12px', marginTop: '16px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dataBarres} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="mois" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px', fontSize: '13px' }} />
+
+                {/* Barre 1 : Offres postulées */}
+                <Bar
+                  dataKey="postulees"
+                  name="Offres postulées"
+                  fill="#3b82f6"
+                  radius={[4, 4, 0, 0]}
+                  barSize={30}
+                />
+
+                {/* Barre 2 : Réponses positives */}
+                <Bar
+                  dataKey="positives"
+                  name="Réponses positives"
+                  fill="#22c55e"
+                  radius={[4, 4, 0, 0]}
+                  barSize={30}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+        {/* --- FIN DU GRAPHIQUE --- */}
+
+        <section className="app-list-section" style={{ marginTop: '32px' }}>
+          <div className="section-head">
+            <h2>{t.myApplications || "Mes candidatures"}</h2>
             <div className="head-actions">
-              <div className="search-mini"><Search size={16}/><input type="text" placeholder="Rechercher..."/></div>
-              <button className="btn-filter-mini"><Filter size={16}/> Filtrer</button>
+              <div className="search-mini"><Search size={16}/><input type="text" placeholder={t.searchPlaceholderMini || "Rechercher..."}/></div>
+              <button className="btn-filter-mini"><Filter size={16}/> {t.filterBtn || "Filtrer"}</button>
             </div>
           </div>
 
@@ -92,49 +140,44 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userDat
             <table className="app-table">
               <thead>
                 <tr>
-                  <th>Entreprise</th>
-                  <th>Poste</th>
-                  <th>Date d'envoi</th>
-                  <th>Statut</th>
-                  <th>Action</th>
+                  <th>{t.thCompany || "Entreprise"}</th>
+                  <th>{t.thPosition || "Poste"}</th>
+                  <th>{t.thDate || "Date d'envoi"}</th>
+                  <th>{t.thStatus || "Statut"}</th>
+                  <th>{t.thAction || "Action"}</th>
                 </tr>
               </thead>
               <tbody>
-                {applications.map(app => (
+                {applications.length > 0 ? applications.map(app => (
                   <tr key={app.id}>
                     <td className="bold">{app.company}</td>
                     <td>{app.position}</td>
                     <td className="text-muted">{app.date}</td>
-                    <td><span className={`status-badge ${app.color}`}>{app.status}</span></td>
-                    <td><button className="btn-view">Détails</button></td>
+                    <td>
+                      <span className={`status-badge ${app.color}`}>
+                        {app.status}
+                      </span>
+                    </td>
+                    <td><button className="btn-view">{t.detailsBtn || "Détails"}</button></td>
                   </tr>
-                </thead>
-                <tbody>
-                  {favoriteJobs.map(job => (
-                    <tr key={job.id}>
-                      <td className="bold">{job.entreprise_nom}</td>
-                      <td>{job.titre}</td>
-                      <td className="text-muted">{job.date || "Récemment"}</td>
-                      <td><span className="status-badge warning">{job.contract_type || "Non spécifié"}</span></td>
-                      <td><button className="btn-view" onClick={() => onNavigate('research')}>Consulter</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="empty-state" style={{textAlign: 'center', padding: '30px', color: '#64748b'}}>
-                <p>Aucune offre sauvegardée pour le moment. Allez dans l'onglet Offres pour ajouter des favoris.</p>
-              </div>
-            )}
+                )) : (
+                  <tr>
+                    <td colSpan={5} style={{textAlign: 'center', padding: '20px', color: '#64748b'}}>
+                      Aucune candidature trouvée.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </section>
 
         <section className="app-list-section favorites-block" style={{marginTop: '32px'}}>
           <div className="section-head">
-            <h2>Offres favorites</h2>
+            <h2>{t.favoriteOffers || "Offres favorites"}</h2>
             {favoriteJobs.length > 0 && (
               <div className="head-actions">
-                <span className="count-tag" style={{fontSize: '0.8rem', opacity: 0.7}}>{favoriteJobs.length} offres épinglées</span>
+                <span className="count-tag" style={{fontSize: '0.8rem', opacity: 0.7}}>{favoriteJobs.length} {t.pinnedOffers || "offres épinglées"}</span>
               </div>
             )}
           </div>
@@ -144,11 +187,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userDat
               <table className="app-table">
                 <thead>
                   <tr>
-                    <th>Entreprise</th>
-                    <th>Poste</th>
-                    <th>Lieu</th>
-                    <th>Salaire</th>
-                    <th>Action</th>
+                    <th>{t.thCompany || "Entreprise"}</th>
+                    <th>{t.thPosition || "Poste"}</th>
+                    <th>{t.thLocation || "Lieu"}</th>
+                    <th>{t.thSalary || "Salaire"}</th>
+                    <th>{t.thAction || "Action"}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -160,10 +203,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userDat
                           {job.entreprise_nom}
                         </div>
                       </td>
-                      <td>{job.title}</td>
+                      <td>{job.titre}</td>
                       <td className="text-muted">{job.location}</td>
-                      <td><span className="salary-tag" style={{color: '#22c55e'}}>{job.salary}</span></td>
-                      <td><button className="btn-view" onClick={() => onNavigate('research')}>Voir l'offre</button></td>
+                      <td><span className="salary-tag" style={{color: '#22c55e'}}>{job.salaire_min > 0 ? `${job.salaire_min}k€` : "Non communiqué"}</span></td>
+                      <td><button className="btn-view" onClick={() => onNavigate('research')}>{t.viewOfferBtn || "Voir l'offre"}</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -171,13 +214,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate, t, savedJobs, userDat
             ) : (
               <div className="empty-state" style={{textAlign: 'center', padding: '40px', color: '#64748b'}}>
                 <Bookmark size={40} style={{marginBottom: '16px', opacity: 0.2}} />
-                <p>Vous n'avez aucune offre épinglée pour le moment.</p>
+                <p>{t.emptyFavorites || "Vous n'avez aucune offre épinglée pour le moment."}</p>
                 <button
                   className="btn-view"
                   style={{marginTop: '16px'}}
                   onClick={() => onNavigate('research')}
                 >
-                  Parcourir les offres
+                  {t.browseOffersBtn || "Parcourir les offres"}
                 </button>
               </div>
             )}

@@ -5,7 +5,6 @@
   --border: #e2e8f0;
 }
 
-/* Mode Sombre Dashboard - Synchronisé avec l App.tsx */
 body.theme-dark {
   --bg-main: #0f172a;
   --bg-card: #1e293b;
@@ -14,14 +13,15 @@ body.theme-dark {
 }
 
 .dash-container {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  height: 100vh;
+  display: flex;
+  min-height: 100vh;
   background: var(--bg-main);
   transition: background-color 0.3s ease;
+  width: 100%;
 }
 
 .dash-main {
+  flex: 1;
   padding: 40px;
   overflow-y: auto;
 }
@@ -89,7 +89,12 @@ body.theme-dark {
 }
 .search-mini input { border: none; background: transparent; outline: none; font-size: 0.9rem; color: var(--text-main); }
 
-.app-table { width: 100%; border-collapse: collapse; text-align: left; }
+.app-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.app-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
 .app-table th { padding: 12px; color: #64748b; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
 .app-table td { padding: 16px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text-main); }
 
@@ -106,13 +111,8 @@ body.theme-dark {
 }
 .btn-view:hover { background: var(--bg-main); border-color: #cbd5e1; }
 
-
 .favorites-block {
-  margin-top: 32px; /* Espace entre les deux grands tableaux */
-}
-
-.fav-icon-active {
-  color: #3b82f6; 
+  margin-top: 32px;
 }
 
 .count-tag {
@@ -133,13 +133,8 @@ body.theme-dark {
   font-weight: 600;
 }
 
-.app-table tbody tr:hover {
-  background: rgba(0, 0, 0, 0.02);
-}
-
-body.theme-dark .app-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
-}
+.app-table tbody tr:hover { background: rgba(0, 0, 0, 0.02); }
+body.theme-dark .app-table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
 
 .empty-favorites {
   display: flex;
@@ -154,7 +149,40 @@ body.theme-dark .app-table tbody tr:hover {
   border-radius: 12px;
 }
 
-.empty-favorites p {
-  margin-bottom: 15px;
-  font-size: 0.95rem;
+.empty-favorites p { margin-bottom: 15px; font-size: 0.95rem; }
+
+/* ==========================================================================
+   ADAPTATION POUR TÉLÉPHONE (RESPONSIVE)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .dash-main {
+    padding: 20px 16px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .head-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 }

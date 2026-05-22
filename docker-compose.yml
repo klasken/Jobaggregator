@@ -1,25 +1,25 @@
 services:
   frontend:
-   build: ./front-end
-  ports:
+    build: ./front-end
+    ports:
       - "8080:80"
-  networks:
+    networks:
       - frontend_network
 
   backend:
     build: ./backend
     depends_on:
       - db
-    env_file:
-      - .env
+    ports:
+      - "8000:8000"
     environment:
       DB_HOST: db
-      WELOVEDEVS_API_KEY: ${WELOVEDEVS_API_KEY}
+      WELOVEDEVS_API_KEY: ${WELOVEDEVS_API_KEY:-dummy_key}
+    volumes:
+      - ./backend/logs:/var/log/jobaggregator
     networks:
       - frontend_network
       - backend_network
-    ports:
-      - "8000:8000"
 
   phpmyadmin:
     image: phpmyadmin
@@ -35,19 +35,30 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-        MYSQL_DATABASE: ${MYSQL_DATABASE}
-        MYSQL_USER: ${MYSQL_USER}
-        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-testroot}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-testdb}
+      MYSQL_USER: ${MYSQL_USER:-testuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-testpassword}
     volumes:
       - db_data:/var/lib/mysql
       - ./data.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend_network
 
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./backend/logs:/var/log/jobaggregator
+      - ./etc/fail2ban/jail.local:/etc/fail2ban/jail.d/jobaggregator.local:ro
+      - ./etc/fail2ban/filter.d/jobaggregator.conf:/etc/fail2ban/filter.d/jobaggregator.conf:ro
+
 networks:
   frontend_network:
   backend_network:
 
 volumes:
-  db_data:
+  db_data: {}

@@ -1,0 +1,201 @@
+.research-sidebar {
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  height: 100vh;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  position: sticky;
+  top: 0;
+  transition: all 0.3s ease;
+}
+
+.research-sidebar .sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.research-sidebar .sidebar-brand .brand-icon {
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 100%;
+  height: 60px; 
+  overflow: visible;
+}
+
+.research-sidebar .brand-icon .custom-sidebar-logo {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  transform: scale(1.8); 
+}
+
+.research-sidebar .sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.research-sidebar .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--text-main) !important;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  opacity: 1 !important;
+}
+
+.research-sidebar .nav-item svg {
+  color: var(--text-main) !important;
+}
+
+.research-sidebar .nav-item:hover,
+.research-sidebar .nav-item.active {
+  background: var(--bg-main);
+}
+
+.research-sidebar .sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.research-sidebar .user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--text-main);
+  overflow: hidden;
+}
+
+.research-sidebar .user-meta .u-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+
+.research-sidebar .user-meta .u-logout {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0;
+}
+
+.mobile-nav-toggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 1000;
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .research-sidebar {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 60px !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px !important;
+  }
+
+  .research-sidebar .sidebar-brand {
+    justify-content: flex-start;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    width: auto;
+  }
+  
+  .research-sidebar .sidebar-brand .brand-icon {
+    width: auto;
+    height: 45px;
+  }
+
+  .research-sidebar .brand-icon .custom-sidebar-logo {
+    transform: scale(1); 
+  }
+
+  .research-sidebar .sidebar-nav,
+  .research-sidebar .sidebar-user {
+    display: none !important;
+  }
+
+  .research-sidebar.mobile-open {
+    height: 100vh !important;
+    flex-direction: column !important;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 80px 16px 24px 16px !important;
+    overflow-y: auto;
+  }
+
+  .research-sidebar.mobile-open .sidebar-brand {
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    margin-bottom: 0;
+  }
+
+  .research-sidebar.mobile-open .sidebar-nav {
+    display: flex !important;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .research-sidebar.mobile-open .sidebar-user {
+    display: flex !important;
+    width: 100%;
+    margin-top: auto;
+  }
+}

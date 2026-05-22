@@ -1,0 +1,10 @@
+[jobaggregator]
+enabled = true
+port = 8000
+filter = jobaggregator
+logpath = /var/log/jobaggregator/app.log
+maxretry = 5
+bantime = 600
+banaction = iptables-multiport
+chain = DOCKER-USER
+ignoreip =

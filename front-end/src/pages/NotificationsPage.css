@@ -1,0 +1,213 @@
+.notif-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-main, #f8fafc);
+  width: 100%;
+}
+
+.notif-main {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  animation: fadeInNotif 0.3s ease-out;
+  width: 100%;
+}
+
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.notif-header h1 {
+  font-size: 2rem;
+  color: var(--text-main, #0f172a);
+  margin: 0 0 8px 0;
+}
+
+.notif-header p {
+  color: #64748b;
+  margin: 0;
+}
+
+.btn-clear-all {
+  background: transparent;
+  border: 1px solid var(--border, #e2e8f0);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-main, #0f172a);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-clear-all:hover {
+  background: var(--bg-main, #f8fafc);
+  border-color: #cbd5e1;
+}
+
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 800px;
+  width: 100%;
+}
+
+.notif-card {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notif-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.notif-card.unread {
+  border-left: 4px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.02);
+}
+
+.notif-icon-wrapper {
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.notif-icon-wrapper.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.notif-icon-wrapper.success { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+.notif-icon-wrapper.warning { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+
+.notif-content {
+  flex: 1;
+}
+
+.notif-content h3 {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  color: var(--text-main, #0f172a);
+  font-weight: 600;
+}
+
+.notif-content p {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.notif-time {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.btn-delete-notif {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-delete-notif:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.empty-notifications {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  text-align: center;
+  color: #64748b;
+  background: var(--bg-card, #ffffff);
+  border: 2px dashed var(--border, #e2e8f0);
+  border-radius: 16px;
+  max-width: 800px;
+  margin: 40px auto 0 auto;
+  width: 100%;
+}
+
+.empty-notifications .empty-icon {
+  opacity: 0.3;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+
+.empty-notifications p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-main, #0f172a);
+}
+
+@keyframes fadeInNotif {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   AJOUT DU RESPONSIVE POUR TÉLÉPHONE (MOBILE)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .notif-main {
+    padding: 20px 16px;
+  }
+
+  .notif-header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+
+  .notif-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .btn-clear-all {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .notif-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .notif-icon-wrapper {
+    padding: 8px;
+  }
+
+  .btn-delete-notif {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+
+  .notif-content {
+    padding-right: 24px; /* Évite que le texte chevauche le bouton poubelle */
+  }
+
+  .empty-notifications {
+    padding: 40px 20px;
+    margin-top: 24px;
+  }
+}

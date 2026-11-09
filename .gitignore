@@ -1,2 +1,16 @@
+# Secrets
 .env
-venv
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+
+# Logs écrits par l'API (lus par fail2ban)
+backend/logs/
+*.log

@@ -1,134 +1,55 @@
-# ADR-003 — Authentification et Gestion des Rôles
+# ADR-003 — Authentification
 
-**Date :** _[à compléter]_
-**Statut :** Proposé / Accepté / Obsolète _(choisir)_
-**Décideurs :** _[noms des membres concernés]_
+**Date :** 30 avril 2026
+**Statut :** Accepté (renforcement côté serveur prévu)
+**Décideurs :** Marius Ceugniet, Sacha Bouron, Loïs Ekollo
 
 ---
 
 ## Contexte
 
-Le projet requiert une authentification sécurisée et un système de rôles (`user` / `admin`) avec un contrôle d'accès appliqué côté serveur. Les routes sensibles (administration, modération) doivent être protégées.
-
----
+Les utilisateurs doivent créer un compte, se connecter et retrouver leur profil et leurs candidatures. Un rôle administrateur donne accès à la gestion des utilisateurs et des offres. Le formulaire de connexion est une cible classique d'attaque par force brute.
 
 ## Décision
 
-**Stratégie retenue :** JWT (JSON Web Tokens) avec refresh token stocké en cookie HttpOnly.
+- **Mots de passe** hachés avec **bcrypt** (bibliothèque `passlib`).
+- **Session** sans état côté serveur, par **jeton JWT** signé en HS256 (`python-jose`), valable 30 minutes.
+- **Rôles** stockés en base (`role_id`) et inclus dans le jeton.
+- **Protection contre la force brute** : chaque échec de connexion est journalisé, et **fail2ban** bannit l'IP après 5 échecs en 10 minutes.
 
-| Élément | Choix |
-|---|---|
-| Mécanisme d'auth | JWT (access token + refresh token) |
-| Hachage des mots de passe | bcrypt (coût minimum : 12) |
-| Stockage du refresh token | Cookie HttpOnly + Secure |
-| Durée de l'access token | 15 minutes |
-| Durée du refresh token | 7 jours |
-| Contrôle d'accès | Middleware serveur vérifiant le rôle |
+## Pourquoi
 
----
+- bcrypt est lent par conception et salé : un vol de la base ne donne pas accès aux mots de passe.
+- Un JWT évite de stocker des sessions côté serveur et transporte directement l'email et le rôle.
+- fail2ban agit au niveau réseau, sans modifier la logique de l'API.
 
-## Pourquoi (Why)
-
-> JWT permet une authentification stateless adaptée à une API REST. Le refresh token en cookie HttpOnly protège contre les attaques XSS (le JavaScript côté client ne peut pas y accéder). bcrypt avec un coût élevé ralentit les attaques par force brute sur les mots de passe.
-
----
-
-## Comment (How)
-
-### Flux d'authentification
+## Comment
 
 ```
-1. POST /auth/register
-   → Validation email + mot de passe
-   → Hash bcrypt du mot de passe
-   → Insertion en base
-   → Retourne access token (JSON) + set refresh token (cookie HttpOnly)
-
-2. POST /auth/login
-   → Vérification credentials
-   → Génération JWT access token (15min) + refresh token (7j)
-   → Set cookie HttpOnly pour le refresh token
-
-3. GET /api/protected
-   → Middleware vérifie Authorization: Bearer <access_token>
-   → Décode le JWT, vérifie signature et expiration
-   → Vérifie le rôle si route admin
-
-4. POST /auth/refresh
-   → Lit le refresh token depuis le cookie
-   → Génère un nouvel access token
-   → Retourne le nouvel access token
-
-5. POST /auth/logout
-   → Supprime le cookie refresh token (Set-Cookie avec Max-Age=0)
+Inscription  POST /api/register  → hachage bcrypt → INSERT utilisateurs (role_id = 1)
+Connexion    POST /api/login     → vérification bcrypt
+                                   ├─ succès : JWT { sub: email, role_id, exp: +30 min }
+                                   └─ échec  : ligne « <IP> - "POST /api/login HTTP/1.1" 401 » dans app.log
+Front        token dans localStorage → lecture de l'expiration et du rôle → menu Admin si role_id = 2
+fail2ban     5 échecs en 10 min pour une même IP → bannissement 10 min (chaîne iptables DOCKER-USER)
 ```
 
-### Rôles et permissions
+Derrière Nginx, l'API lit l'IP du client dans l'en-tête `X-Real-IP` ajouté par le reverse proxy. L'API n'est exposée que sur `127.0.0.1`, ce qui empêche un client distant de falsifier cet en-tête en appelant le port 8000 directement.
 
-| Route | user | admin |
-|---|---|---|
-| GET /offers | ✅ | ✅ |
-| GET /offers/:id | ✅ | ✅ |
-| POST /favorites | ✅ | ✅ |
-| POST /admin/offers/moderate | ❌ | ✅ |
-| GET /admin/users | ❌ | ✅ |
-| POST /admin/ingest | ❌ | ✅ |
-| DELETE /admin/offers/:id | ❌ | ✅ |
+## Limites connues
 
-### Middleware de protection (pseudocode)
+| Limite | Correction prévue |
+| :--- | :--- |
+| Les routes d'administration, de profil et de candidature ne vérifient pas encore le jeton côté serveur | Dépendance FastAPI qui décode le JWT et contrôle le rôle sur chaque route protégée |
+| La clé de signature du JWT est définie dans le code | Lecture depuis une variable d'environnement (`JWT_SECRET`) |
+| Le jeton est stocké dans `localStorage` | Cookie `HttpOnly` pour le protéger d'une éventuelle faille XSS |
 
-```javascript
-// Vérifie le token JWT
-function requireAuth(req, res, next) {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "Non authentifié" });
-  try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
-    next();
-  } catch {
-    return res.status(401).json({ error: "Token invalide ou expiré" });
-  }
-}
+## Alternative non retenue
 
-// Vérifie le rôle admin
-function requireAdmin(req, res, next) {
-  if (req.user?.role !== "admin") {
-    return res.status(403).json({ error: "Accès interdit" });
-  }
-  next();
-}
-```
-
----
-
-## Protection anti-brute force
-
-- Rate limiting sur `POST /auth/login` : max 5 tentatives / 15 min / IP
-- Bibliothèque utilisée : _[ex: express-rate-limit]_
-- Après 5 échecs : réponse 429 Too Many Requests avec `Retry-After`
-
----
-
-## Trade-offs
-
-| Avantage | Inconvénient |
-|---|---|
-| Stateless, scalable | Access token non révocable avant expiration |
-| Refresh token sécurisé (HttpOnly) | Complexité légèrement supérieure à une session classique |
-| Pas de session server-side à gérer | Nécessite HTTPS en production |
-
----
-
-## Alternative rejetée
-
-**Alternative :** Sessions serveur (express-session + store Redis)
-
-**Raison du rejet :** Nécessite un service supplémentaire (Redis) et une gestion d'état serveur. JWT est plus adapté à une architecture conteneurisée stateless.
-
----
+**Sessions stockées côté serveur** : révocation plus simple, mais elles imposent un stockage partagé (table ou cache) et une gestion des cookies que le projet ne demandait pas.
 
 ## Liens
 
-- [`backend/middleware/auth.js`](../../backend/middleware/auth.js) — middleware d'authentification
-- [`backend/routes/auth.js`](../../backend/routes/auth.js) — routes d'auth
-- [Sécurité](../security/security-choices.md)
+- [`backend/auth.py`](../../backend/auth.py), [`backend/routes.py`](../../backend/routes.py)
+- [`jail.d/`](../../jail.d) — configuration fail2ban
+- [Choix de sécurité](../security/security-choices.md)

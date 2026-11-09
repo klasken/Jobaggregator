@@ -1,7 +1,7 @@
 # Market Scan — Analyse du Marché
 
-**Date :** _[à compléter]_
-**Auteur :** _[nom]_
+**Date :** 5 mai 2026
+**Auteur :** Gauthier Lebrun
 
 ---
 
@@ -27,16 +27,16 @@ Le marché des plateformes d'emploi tech est dominé par des acteurs généralis
 
 ### Analyse de la concurrence
 
-_[Compléter avec vos propres observations après exploration des plateformes]_
-
 **Ce que font bien les concurrents :**
-- _[ex: LinkedIn — recommandations personnalisées basées sur le profil]_
-- _[ex: Welcome to the Jungle — fiches entreprises très riches]_
+- LinkedIn propose des recommandations personnalisées à partir du profil.
+- Welcome to the Jungle présente des fiches entreprises très riches (équipe, culture, locaux).
+- WeLoveDevs qualifie ses offres pour les profils tech et affiche souvent la stack et le salaire.
 
 **Ce qu'ils font mal ou ignorent :**
-- _[ex: Peu de plateformes permettent de comparer les salaires facilement]_
-- _[ex: Les agrégateurs généralistes n'offrent pas de classification par stack technique]_
-- _[ex: Pas de vue consolidée stage/alternance/CDI sur une seule interface]_
+- Les généralistes noient les offres tech dans un grand volume d'annonces peu filtrées.
+- Peu de plateformes indiquent clairement à un junior si une offre correspond à ses compétences.
+- Stage, alternance et CDI sont rarement présentés côte à côte avec les mêmes filtres.
+- Le suivi des candidatures est laissé à l'utilisateur (tableur, notes).
 
 ---
 
@@ -46,7 +46,7 @@ _[Compléter avec vos propres observations après exploration des plateformes]_
 
 | Attribut | Valeur |
 |---|---|
-| **Prénom** | _[ex: Lucas, 21 ans]_ |
+| **Prénom** | Lucas, 21 ans |
 | **Contexte** | Étudiant Epitech en 3e année, cherche un stage de 6 mois |
 | **Objectif** | Trouver rapidement des offres de stage en développement backend |
 | **Frustrations** | Jongle entre 5 plateformes, voit les mêmes offres partout, ne sait pas si le salaire est correct |
@@ -56,7 +56,7 @@ _[Compléter avec vos propres observations après exploration des plateformes]_
 
 | Attribut | Valeur |
 |---|---|
-| **Prénom** | _[ex: Amina, 24 ans]_ |
+| **Prénom** | Amina, 24 ans |
 | **Contexte** | Diplômée depuis 6 mois, cherche son premier CDI en frontend |
 | **Objectif** | Comparer les offres React/Vue, filtrer par salaire minimum |
 | **Frustrations** | Impossible de comparer facilement les rémunérations, descriptions trop longues |
@@ -66,26 +66,30 @@ _[Compléter avec vos propres observations après exploration des plateformes]_
 
 ## 4. Proposition de valeur
 
-> **Pour les étudiants et développeurs juniors** qui cherchent un emploi ou un stage dans la tech, **notre plateforme** est un agrégateur centralisé qui collecte, normalise et classe les offres de plusieurs sources, afin de permettre une recherche rapide, une comparaison de salaires, et une meilleure décision d'orientation professionnelle. Contrairement à WeLoveDevs ou LinkedIn pris séparément, **notre solution** offre une vue unifiée enrichie par une classification IA et des analytics de marché.
+> **Pour les étudiants et développeurs juniors** qui cherchent un stage, une alternance ou un emploi dans la tech, **JobyFind** centralise les offres, les normalise et les classe selon leur compatibilité avec les compétences de chaque utilisateur. Contrairement à une recherche sur plusieurs sites, l'utilisateur voit d'abord les offres qui lui correspondent et suit toutes ses candidatures au même endroit.
+
+Le détail est dans la [proposition de valeur](value-proposition.md).
 
 ---
 
 ## 5. Problèmes prioritaires adressés
 
-| # | Problème | Priorité | Feature associée |
-|---|---|---|---|
-| 1 | Offres dispersées sur plusieurs sites | 🔴 Haute | Agrégation WeLoveDevs + source secondaire |
-| 2 | Manque de visibilité sur les salaires | 🔴 Haute | Dashboard salaires (data feature) |
-| 3 | Offres difficiles à catégoriser | 🟡 Moyenne | Classification IA (AI feature) |
-| 4 | Pas de vue rapide sans lire toute la description | 🟡 Moyenne | Résumé automatique (bonus) |
-| 5 | Interface peu accessible sur mobile | 🟢 Basse | Design responsive WCAG 2.1 |
+| # | Problème | Priorité | Réponse dans JobyFind | État |
+|---|---|---|---|---|
+| 1 | Offres dispersées sur plusieurs sites | 🔴 Haute | Collecte automatique des offres WeLoveDevs, format unique | ✅ Réalisé |
+| 2 | Difficile de savoir si une offre correspond à son profil | 🔴 Haute | Score de compatibilité IA et tri des offres | ✅ Réalisé |
+| 3 | Candidatures suivies à la main | 🟡 Moyenne | Tableau de bord des candidatures | ✅ Réalisé |
+| 4 | Recherche géographique peu visuelle | 🟡 Moyenne | Carte interactive des offres | ✅ Réalisé |
+| 5 | Interfaces peu accessibles | 🟡 Moyenne | Mode sombre, mode daltonien, texte agrandi, lecteur vocal, 6 langues | ✅ Réalisé |
+| 6 | Manque de visibilité sur les salaires | 🟢 Basse | Tableau de bord des salaires par ville et par contrat | 🔜 Piste d'amélioration |
+| 7 | Une seule source d'offres | 🟢 Basse | Seconde source d'offres | 🔜 Piste d'amélioration |
 
 ---
 
 ## 6. Sources de cette analyse
 
-- Exploration directe des plateformes citées (captures d'écran disponibles dans `/docs/product/screenshots/`)
-- _[Ajouter toute autre source : articles, feedbacks utilisateurs, etc.]_
+- Exploration directe des plateformes citées
+- Documentation de l'API WeLoveDevs fournie dans le cadre du projet
 
 ---
 

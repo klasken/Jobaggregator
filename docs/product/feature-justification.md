@@ -1,95 +1,96 @@
-# Justification des Features — Data & IA
+# Justification des features — Data et IA
 
-**Date :** _[à compléter]_
-**Auteur :** _[nom]_
-
----
-
-> Ce document répond à l'exigence d'**Innovation Justification** du projet. Chaque feature majeure du dashboard et de la partie IA est justifiée selon la structure : **Problème → Hypothèse → Pertinence → Mesure du succès**.
+**Date :** 11 mai 2026
+**Auteurs :** Gauthier Lebrun, Marius Ceugniet
 
 ---
 
-## Feature Data — _[ex: Dashboard de distribution des salaires]_
+> Chaque feature est justifiée selon la même structure : **problème → hypothèse → pertinence → mesure du succès**. Les indicateurs proposés n'ont pas encore été mesurés auprès d'utilisateurs réels.
+
+---
+
+## Feature Data — Tableau de bord des candidatures
 
 ### Problème utilisateur adressé
 
-> Les utilisateurs (étudiants, juniors) n'ont aucun repère sur les salaires du marché tech en France. Ils acceptent ou refusent des offres sans savoir si la rémunération est dans la norme de leur profil et de leur région.
+> Un étudiant qui postule à de nombreuses offres perd le fil : il ne sait plus où il a postulé, quand, ni quelles candidatures attendent encore une réponse.
 
 ### Hypothèse
 
-> En affichant une distribution des salaires par type de contrat, ville, et domaine technique (backend, frontend, data...), les utilisateurs peuvent valider ou invalider leurs attentes salariales **sans quitter la plateforme**, ce qui augmente le temps passé sur le dashboard et la pertinence perçue de la plateforme.
+> En regroupant toutes les candidatures envoyées depuis la plateforme dans un tableau de bord, avec des compteurs par statut et un graphique, l'utilisateur sait immédiatement où il en est et quelles candidatures relancer.
 
 ### Pourquoi cette approche est pertinente
 
-> Les données de salaire sont déjà collectées lors de l'ingestion WeLoveDevs (champs `salary_min` / `salary_max`). Leur agrégation et visualisation ne nécessite pas de traitement supplémentaire lourd. Un histogramme ou box-plot par catégorie est une visualisation reconnue pour ce type d'analyse.
+> Les candidatures sont déjà enregistrées en base au moment où l'utilisateur postule : le tableau de bord ne demande aucune saisie supplémentaire. Des compteurs et un histogramme sont des visualisations lisibles en quelques secondes.
 
-### Widgets du dashboard et leur utilité
+### Widgets et décisions supportées
 
-| Widget | Décision utilisateur supportée |
-|---|---|
-| Histogramme des salaires par domaine | "Est-ce que mon attente salariale est réaliste pour un poste backend ?" |
-| Salaire médian par ville | "Vaut-il mieux chercher à Paris ou en remote ?" |
-| Évolution du nombre d'offres par semaine | "Le marché recrute-t-il en ce moment ?" |
-| Répartition stage / alternance / CDI | "Quels types de contrats sont disponibles ?" |
+| Widget | Question à laquelle il répond |
+| :--- | :--- |
+| Compteurs Envoyées / En attente / Acceptées / Refusées | « Où en sont mes candidatures ? » |
+| Histogramme des candidatures et des réponses positives | « Mon taux de réponse s'améliore-t-il ? » |
+| Tableau des candidatures (entreprise, poste, date, statut) | « Qui dois-je relancer ? » |
+| Offres favorites | « Quelles offres ai-je mises de côté ? » |
 
-### Mesure du succès
+### Mesure du succès proposée
 
 | Métrique | Cible | Comment mesurer |
-|---|---|---|
-| Utilisateurs visitant le dashboard | ≥ 50% des utilisateurs actifs | Analytics (logs frontend) |
-| Temps moyen passé sur le dashboard | > 30 secondes | Analytics |
-| Satisfaction utilisateur (si testable) | Score > 3.5/5 | Questionnaire ou test utilisateur |
+| :--- | :--- | :--- |
+| Utilisateurs consultant le tableau de bord | ≥ 50 % des utilisateurs actifs | Journalisation des pages visitées |
+| Candidatures envoyées depuis la plateforme | ≥ 2 par utilisateur actif et par mois | Table `candidatures` |
 
 ---
 
-## Feature IA — _[ex: Classification automatique des offres par domaine]_
+## Feature IA — Recommandation d'offres par compatibilité
 
 ### Problème utilisateur adressé
 
-> Les offres d'emploi n'ont pas de catégorie technique standardisée dans les sources externes. Un utilisateur cherchant un poste "backend Python" doit lire chaque offre une par une pour savoir si elle lui correspond.
+> Les offres n'indiquent pas si elles correspondent au profil d'un junior. Un utilisateur qui cherche un poste « React / TypeScript » doit lire chaque annonce pour le savoir.
 
 ### Hypothèse
 
-> En classifiant automatiquement chaque offre dans un domaine technique (backend, frontend, DevOps, data, mobile...) dès l'ingestion, on permet un **filtrage instantané par catégorie** et une meilleure orientation dans la liste des offres, réduisant le temps de recherche.
+> En calculant un score de compatibilité entre les compétences de l'utilisateur et chaque offre, et en triant les offres selon ce score, l'utilisateur trouve plus vite les offres pertinentes et postule davantage.
 
 ### Pourquoi cette approche est pertinente
 
-> La classification de texte par TF-IDF + Naive Bayes est une approche éprouvée pour ce type de tâche (catégorisation de courtes descriptions textuelles). Elle est très légère (< 10 MB), rapide (< 100ms/offre), et ne nécessite pas de GPU. Les labels de catégories correspondent directement aux termes de recherche les plus utilisés par les développeurs.
+> Un modèle d'embeddings pré-entraîné compare le sens des textes et pas seulement les mots exacts. Il ne nécessite aucune donnée annotée, tourne sur CPU et respecte les contraintes du projet (moins de 500 Mo, aucune API externe). Le choix du modèle est détaillé dans l'[ADR-005](../adr/ADR-005-feature-ia.md).
 
-### Comment le résultat est visible pour l'utilisateur
+### Comment le résultat est visible
 
-- Filtre "Domaine" dans la barre de recherche (ex: "Backend", "Frontend", "DevOps")
-- Badge coloré sur chaque carte d'offre indiquant la catégorie
-- Widget dashboard : "Répartition des offres par domaine"
+- Badge « XX % de compatibilité » sur chaque carte d'offre
+- Liste triée de l'offre la plus compatible à la moins compatible
+- Bloc « Recommandation IA » avec une barre de correspondance dans le détail de l'offre
 
-### Mesure du succès
+### Mesure du succès proposée
 
 | Métrique | Cible | Comment mesurer |
-|---|---|---|
-| Précision du modèle (jeu de test) | ≥ 80% | Évaluation sklearn sur test set |
-| Temps de traitement par offre | < 500ms | Benchmark lors de l'ingestion |
-| Taux de couverture | ≥ 95% des offres classifiées | Comptage des offres avec label "autre" |
-| Utilisation du filtre domaine | ≥ 30% des recherches | Logs de filtrage |
+| :--- | :--- | :--- |
+| Part des candidatures envoyées sur les 10 premières offres recommandées | ≥ 50 % | Rang de l'offre au moment de la candidature |
+| Temps de calcul des recommandations | < 5 s pour l'ensemble des offres | Mesure côté API |
+| Pertinence jugée par des testeurs | ≥ 4 offres pertinentes sur les 5 premières | Test utilisateur sur quelques profils types |
 
 ---
 
-## Justification des autres widgets du dashboard
+## Autres éléments de l'interface
 
-_[Compléter avec les autres éléments de votre dashboard. Structure identique :]_
+### Carte interactive des offres
 
-### Widget : _[nom du widget]_
+**Problème :** une liste ne montre pas où se situent les offres.
+**Hypothèse :** une carte aide l'utilisateur à repérer les bassins d'emploi proches de chez lui.
+**Pertinence :** les lieux sont déjà normalisés à la collecte, puis géocodés avec l'API Adresse du gouvernement.
+**Mesure :** clics sur « Voir l'offre » depuis la carte.
 
-**Problème :** _[Quel problème utilisateur ce widget adresse-t-il ?]_
+### Filtres par type de contrat
 
-**Hypothèse :** _[Qu'est-ce que ce widget va améliorer ?]_
-
-**Pertinence :** _[Pourquoi cette représentation/cette donnée est-elle adaptée ?]_
-
-**Mesure :** _[Comment saurez-vous si ce widget est utile ?]_
+**Problème :** stage, alternance et CDI sont mélangés.
+**Hypothèse :** un filtre en un clic réduit la liste aux offres compatibles avec la situation de l'utilisateur.
+**Pertinence :** le type de contrat est normalisé à la collecte.
+**Mesure :** part des recherches utilisant un filtre.
 
 ---
 
 ## Liens
 
 - [ADR-005 — Feature IA](../adr/ADR-005-feature-ia.md)
-- [Market Scan](market-scan.md)
+- [Market scan](market-scan.md)
+- [Proposition de valeur](value-proposition.md)

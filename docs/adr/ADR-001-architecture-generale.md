@@ -1,78 +1,61 @@
-# ADR-001 — Architecture Générale
+# ADR-001 — Architecture générale
 
-**Date :** _[à compléter]_
-**Statut :** Proposé / Accepté / Obsolète _(choisir)_
-**Décideurs :** _[noms des membres concernés]_
+**Date :** 29 avril 2026
+**Statut :** Accepté
+**Décideurs :** Marius Ceugniet, Sacha Bouron, Loïs Ekollo, Gauthier Lebrun
 
 ---
 
 ## Contexte
 
-Nous devons choisir un stack technique pour construire une plateforme fullstack comprenant : un frontend responsive, une API REST, une base de données, un service de collecte de données, et une feature IA légère. Le tout doit être conteneurisé avec Docker.
-
----
+La plateforme doit réunir un frontend, une API REST, une base de données, une collecte de données depuis l'API WeLoveDevs et une feature IA légère. Le sujet impose une conteneurisation complète avec Docker et une intégration continue sur GitHub Actions.
 
 ## Décision
 
-**Stack retenu :**
+| Couche | Technologie | Raison principale |
+| :--- | :--- | :--- |
+| Frontend | React 19 + TypeScript, Vite | Typage des données reçues de l'API, écosystème de composants (Recharts, Leaflet) |
+| Serveur web | Nginx | Sert le build statique et relaie `/api/` vers le backend (une seule origine pour le navigateur) |
+| Backend | FastAPI (Python 3.12) | Validation des entrées avec Pydantic, documentation OpenAPI générée automatiquement, même langage que la partie IA |
+| Base de données | MySQL 8 | Données relationnelles (utilisateurs, rôles, offres, candidatures), image Docker officielle |
+| IA | Sentence-Transformers, dans le backend | Modèle léger chargé une seule fois au démarrage de l'API |
+| Administration BDD | phpMyAdmin | Consultation des données pendant le développement |
+| Protection | fail2ban | Bannissement des IP qui enchaînent les échecs de connexion |
+| Orchestration | Docker Compose | Lancement de toute la stack en une commande |
 
-| Couche | Technologie choisie | Raison principale |
-|---|---|---|
-| Frontend | _[ex: React / Next.js / Vue]_ | _[à compléter]_ |
-| Backend | _[ex: Node.js/Express / FastAPI / NestJS]_ | _[à compléter]_ |
-| Base de données | _[ex: PostgreSQL / MongoDB]_ | _[à compléter]_ |
-| Service IA | _[ex: Python/scikit-learn / transformers]_ | _[à compléter]_ |
-| Conteneurisation | Docker + Docker Compose | Requis par le projet |
-| CI | GitHub Actions | Requis par le projet |
+## Comment
 
-**Services Docker Compose :**
-1. `frontend` — interface utilisateur
-2. `backend` — API REST
-3. `database` — base de données persistante
-4. `ai-worker` _(optionnel)_ — service IA si séparé du backend
+Cinq services sont définis dans [`docker-compose.yml`](../../docker-compose.yml) :
 
----
-
-## Pourquoi (Why)
-
-_[Expliquer ici les raisons de ces choix : compétences de l'équipe, rapidité de développement, compatibilité avec les contraintes du projet (IA < 500 MB, < 5s/offre), etc.]_
-
-Exemple :
-> On a choisi FastAPI pour le backend car il offre une génération automatique de documentation OpenAPI, une validation des données native avec Pydantic, et une bonne compatibilité avec les bibliothèques Python pour la feature IA.
-
----
-
-## Comment (How)
-
-La communication entre services se fait via le réseau interne Docker Compose. Chaque service expose uniquement les ports nécessaires. Les secrets sont injectés via des variables d'environnement (fichier `.env`, non commité).
+| Service | Exposition | Réseaux |
+| :--- | :--- | :--- |
+| `frontend` (Nginx) | `8080` | `frontend_network` |
+| `backend` (FastAPI) | `127.0.0.1:8000` | `frontend_network`, `backend_network` |
+| `db` (MySQL) | aucune | `backend_network` |
+| `phpmyadmin` | `127.0.0.1:8081` | `backend_network` |
+| `fail2ban` | réseau de l'hôte (règles iptables) | — |
 
 ```
-[Navigateur] → [Frontend :3000] → [Backend API :8000] → [Database :5432]
-                                                      → [AI Worker :8001]
-                                                      → [WeLoveDevs API]
+[Navigateur] → [Nginx :8080] → /api/ → [FastAPI :8000] → [MySQL :3306]
+                                                       → [API WeLoveDevs]
 ```
 
----
+La base n'est joignable que depuis le réseau interne `backend_network`. Les secrets (clé d'API, identifiants MySQL) sont fournis par variables d'environnement à partir d'un fichier `.env` non versionné.
 
 ## Trade-offs
 
 | Avantage | Inconvénient |
-|---|---|
-| _[ex: Développement rapide avec X]_ | _[ex: Moins de contrôle sur Y]_ |
-| _[ex: Bonne documentation de Z]_ | _[ex: Courbe d'apprentissage de W]_ |
+| :--- | :--- |
+| Un seul backend Python : pas de communication inter-services pour l'IA | L'image du backend est lourde (PyTorch) et son premier démarrage est long |
+| Nginx comme point d'entrée unique, sans souci de CORS pour les appels `/api/` | Une partie des pages appelle encore l'API directement sur le port 8000 |
+| Stack complète lancée en une commande | fail2ban dépend des règles iptables de l'hôte (pensé pour un serveur Linux) |
 
----
+## Alternative non retenue
 
-## Alternative rejetée
-
-**Alternative :** _[ex: Monorepo avec un seul service fullstack type Next.js]_
-
-**Raison du rejet :** _[ex: Moins de séparation des responsabilités, plus difficile à scaler, et ne correspond pas à l'architecture microservices attendue par le jury]_
-
----
+**Service IA séparé (`ai-worker`)** : il aurait isolé PyTorch du reste de l'API. Il a été écarté parce que l'IA ne sert qu'une route et qu'un service supplémentaire aurait ajouté un appel réseau et une configuration à maintenir.
 
 ## Liens
 
-- [`docker-compose.yml`](../../docker-compose.yml)
 - [ADR-002 — Base de données](ADR-002-base-de-donnees.md)
 - [ADR-003 — Authentification](ADR-003-authentification.md)
+- [ADR-005 — Feature IA](ADR-005-feature-ia.md)

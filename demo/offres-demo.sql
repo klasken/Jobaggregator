@@ -1,0 +1,23 @@
+-- Offres de démonstration (entreprises fictives) pour tester JobyFind sans clé d'API WeLoveDevs.
+-- Chargement : voir la section « Données de démonstration » du README.
+INSERT IGNORE INTO offres (titre, entreprise_nom, description, salaire_min, salaire_max, location, date, contract_type, source, competences) VALUES
+  ('Développeur Full-Stack React / Python', 'Nexalis', 'Rejoignez une équipe produit de 12 personnes pour concevoir une plateforme SaaS de gestion de flotte. Stack React + FastAPI, déploiement conteneurisé.', 38, 45, 'Lille', '2026-05-17', 'CDI', 'Démo', 'React, TypeScript, Python, FastAPI, Docker'),
+  ('Développeur Frontend React (Alternance)', 'Pixelune', 'Alternance de 24 mois au sein d''un studio web : intégration de maquettes, composants React réutilisables et tests.', 0, 0, 'Lille', '2026-05-16', 'Alternance', 'Démo', 'React, TypeScript, CSS, Git'),
+  ('Data Engineer Junior', 'Datavane', 'Construction et maintenance de pipelines de données, modélisation SQL et industrialisation des traitements.', 42, 50, 'Paris', '2026-05-15', 'CDI', 'Démo', 'Python, SQL, Airflow, Docker'),
+  ('Stage Développeur Backend Python', 'Hexaflow', 'Stage de 6 mois : développement d''API REST, écriture de tests et participation aux revues de code.', 0, 0, 'Lyon', '2026-05-14', 'Stage', 'Démo', 'Python, FastAPI, MySQL, Docker'),
+  ('Développeur Backend Node.js', 'Mobiliz', 'Conception d''API pour une application de mobilité partagée utilisée par 200 000 personnes.', 40, 48, 'Nantes', '2026-05-13', 'CDI', 'Démo', 'Node.js, Express, PostgreSQL, Docker'),
+  ('Ingénieur DevOps', 'Orbitek', 'Automatisation des déploiements, supervision et sécurisation de l''infrastructure cloud.', 45, 55, 'Toulouse', '2026-05-12', 'CDI', 'Démo', 'Docker, Kubernetes, CI/CD, Linux, Terraform'),
+  ('Développeur Mobile Flutter', 'Lumio Santé', 'Application mobile de suivi patient : nouvelles fonctionnalités, performances et accessibilité.', 38, 46, 'Bordeaux', '2026-05-11', 'CDI', 'Démo', 'Flutter, Dart, Firebase, REST'),
+  ('Développeur Java Spring (Alternance)', 'Cobalt Finance', 'Alternance dans une équipe back-office bancaire : microservices Spring Boot et tests automatisés.', 0, 0, 'Paris', '2026-05-10', 'Alternance', 'Démo', 'Java, Spring Boot, SQL, Git'),
+  ('Développeur Python / IA', 'Quantix', 'Intégration de modèles NLP en production et création d''API d''inférence.', 45, 55, 'Paris', '2026-05-18', 'CDI', 'Démo', 'Python, PyTorch, NLP, Docker'),
+  ('Développeur Web PHP Symfony', 'Agrotech Nord', 'CDD de 12 mois : refonte d''un extranet agricole et migration vers Symfony 7.', 34, 38, 'Lille', '2026-05-17', 'CDD', 'Démo', 'PHP, Symfony, MySQL, JavaScript'),
+  ('Développeur Unity C#', 'Kaldera Games', 'Développement de mécaniques de jeu et outils internes pour un studio indépendant.', 36, 44, 'Montpellier', '2026-05-16', 'CDI', 'Démo', 'C#, Unity, Git'),
+  ('Stage Data Analyst', 'Verdant Energy', 'Analyse de données de production d''énergie renouvelable et création de tableaux de bord.', 0, 0, 'Strasbourg', '2026-05-15', 'Stage', 'Démo', 'Python, Pandas, SQL, Power BI'),
+  ('Développeur Frontend Vue.js', 'Hexaflow', 'Création d''interfaces métier pour une suite logicielle B2B.', 38, 44, 'Lyon', '2026-05-14', 'CDI', 'Démo', 'Vue.js, TypeScript, CSS, Jest'),
+  ('Administrateur Systèmes et Réseaux', 'Orbitek', 'Exploitation et sécurisation d''un parc de serveurs Linux et des équipements réseau.', 36, 42, 'Rennes', '2026-05-13', 'CDI', 'Démo', 'Linux, Réseau, Ansible, Sécurité'),
+  ('Développeur Full-Stack TypeScript', 'Mobiliz', 'Mission de 6 mois en télétravail sur une plateforme de réservation.', 50, 60, 'Remote', '2026-05-12', 'Freelance', 'Démo', 'TypeScript, React, Node.js, AWS'),
+  ('Analyste Cybersécurité SOC', 'Cobalt Finance', 'Surveillance, détection et réponse aux incidents au sein du SOC.', 42, 50, 'Paris', '2026-05-11', 'CDI', 'Démo', 'SIEM, Linux, Réseau, Python'),
+  ('Développeur Backend Go', 'Datavane', 'Développement de services haute performance pour une plateforme de données.', 44, 52, 'Marseille', '2026-05-10', 'CDI', 'Démo', 'Go, gRPC, PostgreSQL, Kubernetes'),
+  ('Stage Développeur React Native', 'Lumio Santé', 'Stage de 6 mois sur l''application mobile patients.', 0, 0, 'Bordeaux', '2026-05-18', 'Stage', 'Démo', 'React Native, TypeScript, REST'),
+  ('Développeur .NET C#', 'Agrotech Nord', 'Maintenance évolutive d''applications métier et migration vers le cloud.', 37, 43, 'Lille', '2026-05-17', 'CDI', 'Démo', 'C#, .NET, SQL Server, Azure'),
+  ('Machine Learning Engineer', 'Quantix', 'Mise en production de modèles de recommandation et suivi de leurs performances.', 48, 58, 'Lyon', '2026-05-16', 'CDI', 'Démo', 'Python, scikit-learn, MLOps, Docker');

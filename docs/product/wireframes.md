@@ -1,12 +1,10 @@
 # Wireframes — Vues Principales
 
-**Date :** _[à compléter]_
-**Auteur :** _[nom]_
-**Outil utilisé :** _[ex: Figma / draw.io / Balsamiq / maquettes papier scannées]_
+**Date :** 5 mai 2026
+**Auteur :** Gauthier Lebrun
+**Format :** maquettes en texte, utilisées comme référence par l'équipe front
 
-> Les wireframes haute-fidélité sont disponibles dans : _[lien Figma ou dossier `/docs/product/mockups/`]_
->
-> Ce document présente une version textuelle de référence pour les développeurs.
+> Ces maquettes ont servi de base au développement. L'interface finale est visible dans les [captures d'écran](../screenshots/) : elle ajoute notamment une barre latérale de navigation, la carte des offres et le score de compatibilité IA.
 
 ---
 
@@ -187,11 +185,11 @@
 
 ---
 
-## Notes sur l'accessibilité (WCAG 2.1 AA)
+## Notes sur l'accessibilité
 
-Les flux suivants sont soumis à l'audit d'accessibilité :
-1. **Inscription** (Vue 5) — labels sur tous les champs, messages d'erreur associés
-2. **Recherche d'offres** (Vue 2) — filtres accessibles au clavier, résultats annoncés aux lecteurs d'écran
-3. **Détail d'une offre** (Vue 3) — structure de heading logique, contrastes respectés
+Points d'attention retenus pour les flux principaux :
+1. **Inscription** (Vue 5) — un libellé pour chaque champ, des messages d'erreur explicites
+2. **Recherche d'offres** (Vue 2) — filtres utilisables au clavier
+3. **Détail d'une offre** (Vue 3) — hiérarchie de titres logique et contrastes suffisants
 
-Résultats de l'audit disponibles dans [`/docs/product/accessibility-audit.md`](accessibility-audit.md).
+L'application finale propose en plus un mode sombre, un mode daltonien, un texte agrandi, un lecteur vocal et 6 langues (page Paramètres).

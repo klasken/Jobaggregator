@@ -1,7 +1,0 @@
-[jobaggregator]
-enabled = true
-port = 8000
-filter = jobaggregator
-logpath = /home/lois-elie/B-YEP-200-LIL-2-1-jobaggregator-3/backend/logs/app.log
-maxretry = 5
-bantime = 600

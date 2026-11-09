@@ -11,9 +11,12 @@ services:
     depends_on:
       - db
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       DB_HOST: db
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-testdb}
+      MYSQL_USER: ${MYSQL_USER:-testuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-testpassword}
       WELOVEDEVS_API_KEY: ${WELOVEDEVS_API_KEY:-dummy_key}
     volumes:
       - ./backend/logs:/var/log/jobaggregator
@@ -51,10 +54,14 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
+    depends_on:
+      - backend
+    # Redémarre tant que le backend n'a pas encore créé app.log
+    restart: unless-stopped
     volumes:
-      - ./backend/logs:/var/log/jobaggregator
-      - ./etc/fail2ban/jail.local:/etc/fail2ban/jail.d/jobaggregator.local:ro
-      - ./etc/fail2ban/filter.d/jobaggregator.conf:/etc/fail2ban/filter.d/jobaggregator.conf:ro
+      - ./backend/logs:/var/log/jobaggregator:ro
+      - ./jail.d/jail.local:/data/jail.d/jobaggregator.local:ro
+      - ./jail.d/filter.d/jobaggregator.conf:/data/filter.d/jobaggregator.conf:ro
 
 networks:
   frontend_network:

@@ -70,7 +70,8 @@ async def login(request: Request, user: UserAuth):
     db_user = get_user_by_email(user.email)
 
     if not db_user or not verify_mdp(user.password, db_user['password']):
-        client_ip = request.client.host
+        # Derrière le reverse proxy Nginx, la vraie IP du client est dans X-Real-IP
+        client_ip = request.headers.get("X-Real-IP") or request.client.host
         logger.error(f'{client_ip} - "POST /api/login HTTP/1.1" 401')
         raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
 

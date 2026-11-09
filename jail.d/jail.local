@@ -1,10 +1,12 @@
 [jobaggregator]
-enabled = true
-port = 8000
-filter = jobaggregator
-logpath = /var/log/jobaggregator/app.log
-maxretry = 5
-bantime = 600
-banaction = iptables-multiport
-chain = DOCKER-USER
-ignoreip =
+enabled   = true
+filter    = jobaggregator
+logpath   = /var/log/jobaggregator/app.log
+maxretry  = 5
+findtime  = 600
+bantime   = 600
+# Les conteneurs Docker sont protégés via la chaîne DOCKER-USER.
+# Le paquet y a déjà été redirigé vers le port interne du conteneur :
+# on bloque donc l'IP sur tous les ports plutôt que sur 8080/8000.
+chain     = DOCKER-USER
+banaction = iptables-allports
